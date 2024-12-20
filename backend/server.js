@@ -105,9 +105,7 @@ io.on('connection', (socket) => {
         
         socket.join(roomId);
         console.log(`User ${playerName} joined room ${roomId}`);
-        // io.to(roomId).emit('roomUpdate', { ...rooms[roomId], roomId });
-        io.to(roomId).emit('roomUpdate', { playerName, roomId });
-        // io.to(roomId).emit('roomUpdate', rooms[roomId]);
+        io.to(roomId).emit('roomUpdate', { roomId, ...rooms[roomId] });
     });
 
     socket.on('startGame', (roomId) => {
@@ -132,8 +130,8 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('gameStarted', { roomId });
     });
 
-    socket.on('PuzzleSolved', ({ roomId, playerName, time }) => {
-        console.log(`Zdarzenie PuzzleSolved otrzymane: roomId=${roomId}, playerName=${playerName}`);
+    socket.on('puzzleSolved', ({ roomId, playerName, time }) => {
+        console.log(`Zdarzenie puzzleSolved otrzymane: roomId=${roomId}, playerName=${playerName}`);
         if (!rooms[roomId]) {
             console.error(`Room ${roomId} does not exist`);
             return;
@@ -143,12 +141,12 @@ io.on('connection', (socket) => {
         console.log(room)
         console.log(playerName)
         const player = room.players.find((p) => p.name === playerName);
-        console.log(`Player data in PuzzleSolved:`, player);
+        console.log(`Winner in PuzzleSolved:`, player);
     
-        if (!player || player.completed) {
-            console.error(`No player or player already completed`)
-            return;
-        }
+        // if (!player || player.completed) {
+        //     console.error(`No player or player already completed`)
+        //     return;
+        // }
     
         // Mark player as completed
         player.completed = true;
@@ -185,8 +183,28 @@ io.on('connection', (socket) => {
         }
     });
 
-});
+    // ==== chat function ====
 
+    socket.on('chatMessage', (messageData) => {
+        console.log('server -> Message received:', messageData);
+        const { roomId, playerName, message } = messageData;
+
+        if (!roomId || !playerName || !message) {
+            console.error('Incomplete message data:', messageData);
+            return;
+        }
+
+        // Emit the chat message to all clients in the room
+        io.to(roomId).emit('chatMessage', {
+            playerName,
+            message,
+            timestamp: Date.now(),
+        });
+        // new Date()
+
+        console.log(`server -> Send message to room ${roomId}:`, { playerName, message });
+    });
+});
 
 // Start serwera
 const PORT = process.env.PORT || 3001;
