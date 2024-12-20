@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(cors()); // umożliwia serwerowi obsługę żądań z innych domen
 
 // Serwowanie statycznych plików z folderu frontend
-app.use(express.static(path.join(__dirname, '../frontend'))); // Ensure static files are served from the frontend directory
+app.use(express.static(path.join(__dirname, '../frontend'))); // ensure static files are served from the frontend directory
 
 app.use('/api/auth', authRoutes); // Obsługa tras rejestracji i logowania
 
@@ -30,6 +30,39 @@ app.get('/api/auth/nickname', (req, res) => {
     }
     return res.status(401).json({ message: 'Not logged in' });
 });
+
+const Leaderboard = require('./models/Leaderboard'); // import leaderboard model
+
+// === leaderboard endpoint ===
+app.get('/api/leaderboard', async (req, res) => {
+    try {
+        const leaderboard = await Leaderboard.find().sort({ time: 1 }).limit(10); // top 10 by fastest time
+        res.json(leaderboard);
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// === search leaderboard by pattern ===
+app.get('/api/leaderboard/search', async (req, res) => {
+    const { query } = req.query;
+
+    if (!query) {
+        return res.status(400).json({ error: 'Query parameter is required' });
+    }
+
+    try {
+        const regex = new RegExp(query, 'i'); // 'i' -> case-insensitive
+        const results = await Leaderboard.find({ playerName: { $regex: regex } }).sort({ time: 1 });
+
+        res.json(results);
+    } catch (error) {
+        console.error('Error searching leaderboard:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 // Przekierowanie wszystkich innych tras na index.html (dla SPA)
 app.get('*', (req, res) => {
@@ -93,9 +126,7 @@ io.on('connection', (socket) => {
             console.error(`Player ${playerName} already in room ${roomId}`);
             return;
         }
-        // const nickname = playerName || `Guest_${Math.floor(Math.random() * 1000)}`;
         
-        // rooms[roomId].players.push({ id: socket.id, name: playerName });
         rooms[roomId].players.push({
             id: socket.id,
             name: playerName,
@@ -130,11 +161,19 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('gameStarted', { roomId });
     });
 
-    socket.on('puzzleSolved', ({ roomId, playerName, time }) => {
-        console.log(`Zdarzenie puzzleSolved otrzymane: roomId=${roomId}, playerName=${playerName}`);
+    socket.on('puzzleSolved', async ({ roomId, playerName, time }) => {
+        console.log(`Puzzle solved by ${playerName} in room ${roomId}`);
+        
         if (!rooms[roomId]) {
             console.error(`Room ${roomId} does not exist`);
             return;
+        }
+
+        try {
+            // add player's score to the leaderboard
+            await Leaderboard.create({ playerName, time });
+        } catch (error) {
+            console.error('Error updating leaderboard:', error);
         }
     
         const room = rooms[roomId];
@@ -143,25 +182,19 @@ io.on('connection', (socket) => {
         const player = room.players.find((p) => p.name === playerName);
         console.log(`Winner in PuzzleSolved:`, player);
     
-        // if (!player || player.completed) {
-        //     console.error(`No player or player already completed`)
-        //     return;
-        // }
-    
-        // Mark player as completed
         player.completed = true;
         player.time = time;
     
         console.log(`Player ${playerName} in room ${roomId} completed in ${time} seconds.`);
     
-        // Declare this player as the winner
+        // declare player as the winner
         room.gameState = 'completed';
         room.winner = player;
 
-        // Broadcast the game ended event to all players in the room
+        // broadcast the game ended event to all players in the room
         io.to(roomId).emit('gameEnded', {
-            winner: player.name,
-            time: player.time,
+            winner: playerName,
+            time: time,
         });
         
         console.log(`Game ended in room ${roomId}. Winner: ${player.name}`);
