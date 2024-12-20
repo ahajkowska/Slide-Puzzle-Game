@@ -1,7 +1,6 @@
 import { io } from 'https://cdn.socket.io/4.5.1/socket.io.esm.min.js';
 const socket = io('http://localhost:3001');
 
-import { joinRoom } from '../connect.js';
 import { navigateTo } from '../router.js';
 
 export function loadWaitingRoomPage() {
@@ -96,8 +95,9 @@ export function loadWaitingRoomPage() {
 
     // Update room details
     socket.on('roomUpdate', (room) => {
-        console.log(room)
-        if (!room || !room.roomId) {
+        console.log(`roomUpdate room: ${room}`)
+        
+        if (!room || typeof room !== 'object') {
             console.error('Invalid room data received in roomUpdate:', room);
             return;
         }
