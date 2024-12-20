@@ -1,3 +1,6 @@
+import socket from '../connect.js';
+import { onChatMessage, sendChatMessage } from '../connect.js';
+import { showWinnerScreen } from './winnerScreen.js';
 
 export async function loadGamePage(params = {}) {
 
@@ -26,7 +29,6 @@ export async function loadGamePage(params = {}) {
         </div> 
     `
 
-    // const playerName = await getPlayerName();
     const playerName = localStorage.getItem('username')
 
     console.log(`Joined game room: ${roomId} as ${playerName}`);
@@ -52,7 +54,7 @@ export async function loadGamePage(params = {}) {
         // let endTime;
 
         p.preload = () => {
-            source = p.loadImage("img/gory2.jpg");
+            source = p.loadImage("img/photo1.jpg");
         }
 
         p.setup = () => {
@@ -128,7 +130,7 @@ export async function loadGamePage(params = {}) {
             const milliseconds = elapsedTimeMs % 1000;
 
             // seconds.milliseconds
-            const formattedTime = `${seconds}.${milliseconds.toString().padStart(3, '0')}`;
+            const formattedTime = `${seconds}.${milliseconds.toString().padStart(2, '0')}`;
 
             // Update the display
             document.getElementById("time").innerText = formattedTime;
@@ -185,10 +187,10 @@ export async function loadGamePage(params = {}) {
                 gameOver = true;
                 const completionTime = (Date.now() - startTime) / 1000; // Calculate elapsed time
 
-                socket.emit('PuzzleSolved', {
+                socket.emit('puzzleSolved', {
                     roomId: roomId, // Room ID where the player is
                     playerName: playerName, // Player's name
-                    time: completionTime // Time taken
+                    time: completionTime.toFixed(2) // Time taken
                 });
 
                 showWinnerScreen({ winner: playerName, time: completionTime.toFixed(2) });
@@ -227,5 +229,51 @@ export async function loadGamePage(params = {}) {
     }
 
     new p5(sketch);
+
+    // === chat logic ===
+
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
+
+    // Send a message
+    chatSend.addEventListener('click', () => {
+        const message = chatInput.value.trim();
+        if (message) {
+            console.log('Sending message:', { roomId, playerName, message });
+            // sendChatMessage(roomId, playerName, message);
+            socket.emit('chatMessage', { roomId, playerName, message })
+            chatInput.value = ''; // Wyczyść pole tekstowe
+        }
+    });
+
+    chatSend.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const message = chatInput.value.trim();
+            if (message) {
+                console.log('Sending message by enter:', { roomId, playerName, message });
+                sendChatMessage(roomId, playerName, message);
+                chatInput.value = ''; // Clear the input
+            }
+        }
+    });
+
+    // Listen for real-time messages
+    onChatMessage((msg) => {
+        console.log('Received message object:', msg);
+        addMessageToChat(msg.playerName, msg.message, msg.timestamp);
+    });
+
+    // Helper to display a message
+    function addMessageToChat(player, message, timestamp) {
+        console.log(`Adding message: ${player} - ${message}`);
+        const chatMessages = document.getElementById('chat-messages');
+        const msgElement = document.createElement('div');
+        msgElement.innerHTML = `<strong>${player}</strong> [${new Date(timestamp).toLocaleTimeString()}]: ${message}`;
+        chatMessages.appendChild(msgElement);
+
+        // Automatycznie przewiń do dołu po dodaniu nowej wiadomości
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 
 }
