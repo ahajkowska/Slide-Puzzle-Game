@@ -7,8 +7,10 @@ export async function loadLeaderboardPage() {
         <div class="leaderboard-container">
             <button id="return-btn">Return</button>
             <h2>Leaderboard</h2>
-            <input type="text" id="search-input" placeholder="Search by player name">
-            <button id="search-btn">Search</button>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search by player name">
+                <button id="search-btn">Search</button>
+            </div>
             <table id="leaderboard-table">
                 <thead>
                     <tr>
