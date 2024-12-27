@@ -5,38 +5,37 @@ import { showWinnerScreen } from './winnerScreen.js';
 export async function loadGamePage(params = {}) {
 
     const roomId = params.roomId; // extract roomId
+    const playerName = params.playerName; // use playerName from navigation parameters
 
     if (!roomId) {
         console.error("Room ID is required to load the game page!");
         return;
     }
 
+    console.log(`Joined game room: ${roomId} as ${playerName}`);
+
     const app = document.getElementById('app');
 
-    app.innerHTML=`
-        <div clssdd="content">
-            <div class="logo">Slide Puzzle</div>
-            <div class="board" id="puzzle-board">
-                
+    // Check if the game board already exists
+    if (!document.getElementById('puzzle-board')) {
+        document.getElementById('app').innerHTML = `
+            <div class="content">
+                <div class="logo">Slide Puzzle</div>
+                <div class="board" id="puzzle-board"></div>
+                <div class="time"><h1>Time: <span id="time">0</span> seconds</h1></div>
             </div>
-            <div class="time"><h1>Time: <span id="time">0</span> seconds</h1></div>
-        </div>
-
-        <div id="chat-container">
-            <div id="chat-messages"></div>
-            <input type="text" id="chat-input" placeholder="Type your message">
-            <button id="chat-send">Send</button>
-        </div> 
-    `
-
-    const playerName = localStorage.getItem('username')
-
-    console.log(`Joined game room: ${roomId} as ${playerName}`);
+            <div id="chat-container">
+                <div id="chat-messages"></div>
+                <input type="text" id="chat-input" placeholder="Type your message">
+                <button id="chat-send">Send</button>
+            </div>
+        `;
+    }
 
     // Listen for gameEnded
     socket.on('gameEnded', ({ winner, time }) => {
         console.log('gameEnded received:', { winner, time });
-        showWinnerScreen({ winner, time });
+        showWinnerScreen( winner, time );
     });
 
     // ==== game logic ====
@@ -51,10 +50,11 @@ export async function loadGamePage(params = {}) {
         // let blankSpot = -1;
         let turnCount = 0;
         let startTime;
-        // let endTime;
 
+        const tabOfPhostos = ["photo1.jpg", "photo2.jpg", "photo3.jpg", "photo4.jpg"];
         p.preload = () => {
-            source = p.loadImage("img/photo1.jpg");
+            const randomIndex = Math.floor(Math.random() * tabOfPhostos.length);
+            source = p.loadImage(`img/${tabOfPhostos[randomIndex]}`);
         }
 
         p.setup = () => {
@@ -122,10 +122,8 @@ export async function loadGamePage(params = {}) {
             if (gameOver) return;
             p.background(0);
 
-            //randomMove(board);
-
             // Update elapsed time display
-            const elapsedTimeMs = Date.now() - startTime; // Elapsed time in milliseconds
+            const elapsedTimeMs = Date.now() - startTime; // time in milliseconds
             const seconds = Math.floor(elapsedTimeMs / 1000);
             const milliseconds = elapsedTimeMs % 1000;
 
@@ -228,7 +226,7 @@ export async function loadGamePage(params = {}) {
 
     }
 
-    new p5(sketch);
+    // new p5(sketch);
 
     // === chat logic ===
 
@@ -241,13 +239,12 @@ export async function loadGamePage(params = {}) {
         const message = chatInput.value.trim();
         if (message) {
             console.log('Sending message:', { roomId, playerName, message });
-            // sendChatMessage(roomId, playerName, message);
-            socket.emit('chatMessage', { roomId, playerName, message })
+            sendChatMessage(roomId, playerName, message);
             chatInput.value = ''; // Wyczyść pole tekstowe
         }
     });
 
-    chatSend.addEventListener('keypress', (e) => {
+    chatInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             const message = chatInput.value.trim();
             if (message) {
@@ -260,7 +257,7 @@ export async function loadGamePage(params = {}) {
 
     // Listen for real-time messages
     onChatMessage((msg) => {
-        console.log('Received message object:', msg);
+        // console.log('Received message object <onChatMessage>:', msg);
         addMessageToChat(msg.playerName, msg.message, msg.timestamp);
     });
 
@@ -274,6 +271,11 @@ export async function loadGamePage(params = {}) {
 
         // Automatycznie przewiń do dołu po dodaniu nowej wiadomości
         chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Initialize the game board if it doesn't exist
+    if (!document.getElementById('puzzle-board').hasChildNodes()) {
+        new p5(sketch);
     }
 
 }

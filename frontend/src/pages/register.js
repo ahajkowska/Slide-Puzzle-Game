@@ -1,8 +1,11 @@
+import { navigateTo } from '../router.js';
+
 export function loadRegisterPage() {
     const app = document.getElementById('app');
 
     app.innerHTML=`
         <div class="register-container">
+            <button id="return-btn">Return</button>
             <h2>Sign Up</h2>
             <form id="registerForm">
                 <input type="text" id="newUsername" placeholder="Username" required autocomplete="username">
@@ -12,6 +15,9 @@ export function loadRegisterPage() {
             <p id="login-link">Already have an account? <a href="#" id="goToLogin">Login here</a>.</p>
         </div>
     `
+    document.getElementById('return-btn').addEventListener('click', () => {
+        navigateTo('/login');
+    });
 
     // redirect to login
     document.getElementById('goToLogin').addEventListener('click', (e) => {

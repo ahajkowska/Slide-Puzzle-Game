@@ -101,8 +101,7 @@ io.on('connection', (socket) => {
         rooms[roomId] = {
             players: [{ id: socket.id, name: playerName, completed: false, time: null }],
             maxPlayers,
-            gameState: 'waiting',
-            started: false,
+            gameInitialized: false
         };
 
         console.log(`${playerName} created room ${roomId}`);
@@ -157,7 +156,7 @@ io.on('connection', (socket) => {
         room.gameState = 'inProgress'; //active
 
         console.log(`Game started in room ${roomId}`);
-        // io.to(roomId).emit('gameStarted', { roomId });
+        console.log(`Room players:`, room.players);
         socket.to(roomId).emit('gameStarted', { roomId });
     });
 
@@ -227,13 +226,11 @@ io.on('connection', (socket) => {
             return;
         }
 
-        // Emit the chat message to all clients in the room
-        io.to(roomId).emit('chatMessage', {
+        io.emit('chatMessage', {
             playerName,
             message,
             timestamp: Date.now(),
         });
-        // new Date()
 
         console.log(`server -> Send message to room ${roomId}:`, { playerName, message });
     });

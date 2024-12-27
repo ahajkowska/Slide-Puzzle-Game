@@ -5,8 +5,8 @@ body{
     text-align: center;
     margin: 0;
     padding: 0;
-    color: #FFD800;
-    background: black;
+    color: black;
+    background: #D5D96A;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -18,17 +18,17 @@ button {
     border: none;
     border-radius: 10px;
     padding: 10px 20px;
-    background-color: #FFD800;
+    background-color: #B0BF3B;
     color: black;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #cfb003;
+    background-color: #909e29;
 }
 
 button:disabled {
-    background-color: #ccc;
+    background-color: #b0bf3b67;
     cursor: not-allowed;
 }
 
@@ -106,7 +106,7 @@ button:disabled {
 }
 
 #puzzle-board{
-    border: 10px solid #FFD800;
+    border: 10px solid #B0BF3B;
 }
 
 .win-overlay {
@@ -180,6 +180,7 @@ input {
 .leaderboard-container {
     text-align: center;
     padding: 20px;
+    color: black
 }
 
 #leaderboard-table {

@@ -83,7 +83,7 @@ export function loadWaitingRoomPage() {
     joinRoomBtn.addEventListener('click', () => {
         const roomId = joinRoomIdInput.value;
         if (roomId) {
-            socket.emit('joinRoom', { roomId, playerName });
+            socket.emit('joinRoom', { roomId, playerName });///
             currentRoomId = roomId;
             console.log(`Joined room with ID: ${currentRoomId}`);
         } else {
@@ -104,7 +104,7 @@ export function loadWaitingRoomPage() {
 
         currentRoomId = room.roomId;
         console.log(`Updated currentRoomId: ${currentRoomId}`);
-
+        
         // Update player list in the UI
         playerList.innerHTML = '';
         room.players.forEach((player) => {
@@ -122,21 +122,18 @@ export function loadWaitingRoomPage() {
         if (currentRoomId) {
             console.log(`Emitting startGame for room: ${currentRoomId}`);
             socket.emit('startGame', currentRoomId);
-            navigateTo('/game', { roomId: currentRoomId });
+            navigateTo('/game', { roomId: currentRoomId, playerName });
         } else {
             console.error('No current room ID available for startGame');
         }
     });
 
-    // let isNavigated = false
-
-    // Navigate to game page when game starts
+    //Navigate to game page when game starts
     socket.on('gameStarted', (room) => {
-        // if (isNavigated) return; // Prevent duplicate navigation
-        // isNavigated = true;
-
+        // console.log(`GameStarted params: ${room.players[0]}`)
         console.log(`Game started, navigating to game room: ${room.roomId}`);
-        navigateTo(`/game`, { roomId: room.roomId }); // roomId as a parameter
+        navigateTo(`/game`, { roomId: room.roomId, playerName });
+    
     });
 
 }
