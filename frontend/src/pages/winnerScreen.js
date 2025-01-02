@@ -21,7 +21,6 @@ export function showWinnerScreen({ winner, time }) {
             <button id="back-home-btn">Back to Home</button>
         </div>
     `;
-    //<button onclick="location.reload()">Play Again</button>
 
     // Append the overlay to the body
     document.body.appendChild(overlay);

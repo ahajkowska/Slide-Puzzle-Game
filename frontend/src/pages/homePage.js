@@ -41,7 +41,6 @@ export function loadHomePage() {
     });
     
        // === Modal functionality ===
-
        const rulesModal = document.getElementById('rulesModal');
        const rulesButton = document.getElementById('rulesButton');
        const closeButton = document.querySelector('.close');
@@ -62,5 +61,4 @@ export function loadHomePage() {
                rulesModal.style.display = 'none';
            }
        });
-
 }

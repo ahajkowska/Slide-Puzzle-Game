@@ -50,7 +50,6 @@ export function loadLoginPage() {
 
                 alert(data.message); // display login success message
 
-                // window.location.href = "/waiting-room"; // redirect to waiting room
                 navigateTo(`/waiting-room`, { playerName: username }); // Pass roomId as a parameter
             } else {
                 alert(data.message); // show error message
