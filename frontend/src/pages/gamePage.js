@@ -1,6 +1,7 @@
 import socket from '../connect.js';
 import { onChatMessage, sendChatMessage } from '../connect.js';
 import { showWinnerScreen } from './winnerScreen.js';
+import { navigateTo } from '../router.js';
 
 export async function loadGamePage(params = {}) {
     // === MQTT - powiadomienia o aktywności graczy ===
@@ -30,7 +31,7 @@ export async function loadGamePage(params = {}) {
         } else if (event.event === 'leave') {
             displayNotification(`🚪 ${event.playerName} left the room.`);
         } else if (event.event === 'startGame') {
-            displayNotification(`🚀 The game has started!`);
+            displayNotification(`The game has started!`);
         } else {
             displayNotification(`ℹ️ ${event.message}`);
         }
@@ -74,6 +75,7 @@ export async function loadGamePage(params = {}) {
     // Check if the game board already exists
     if (!document.getElementById('puzzle-board')) {
         document.getElementById('app').innerHTML = `
+            <button id="leave-game">Leave Game</button>
             <div class="content">
                 <div class="logo">Slide Puzzle</div>
                 <div class="board" id="puzzle-board"></div>
@@ -88,6 +90,16 @@ export async function loadGamePage(params = {}) {
             </div>
         `;
     }
+
+    document.getElementById('leave-game').addEventListener('click', () => {
+        if (confirm('Are you sure you want to leave the game?')) {
+            // Emitowanie zdarzenia opuszczenia gry
+            socket.emit('leaveGame', { roomId, playerName });
+    
+            // przekierowanie na stronę główną
+            navigateTo('/');
+        }
+    });     
 
     // Listen for gameEnded
     socket.on('gameEnded', ({ winner, time }) => {

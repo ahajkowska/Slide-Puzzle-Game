@@ -221,6 +221,30 @@ io.on('connection', (socket) => {
         
         console.log(`Game ended in room ${roomId}. Winner: ${player.name}. Time: ${time} seconds`);
     });
+
+    socket.on('leaveGame', ({ roomId, playerName }) => {
+        console.log(`${playerName} left room ${roomId}`);
+    
+        if (rooms[roomId]) {
+            // Usuń gracza z pokoju
+            rooms[roomId].players = rooms[roomId].players.filter(player => player.name !== playerName);
+    
+            // Powiadom innych graczy
+            mqttClient.publish(`slide-puzzle/activity/${roomId}`, JSON.stringify({
+                event: 'leave',
+                playerName: playerName
+            }));
+    
+            // Usuń pokój, jeśli nie ma graczy
+            if (rooms[roomId].players.length === 0) {
+                delete rooms[roomId];
+                console.log(`Room ${roomId} deleted because it was empty.`);
+            }
+        }
+    
+        // Rozłącz gracza z pokoju
+        socket.leave(roomId);
+    });    
     
     // Obsługa rozłączenia
     socket.on('disconnect', () => {

@@ -253,3 +253,16 @@ input {
     z-index: 1000;
     max-width: 300px;
 }
+
+#leave-game {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    padding: 10px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
