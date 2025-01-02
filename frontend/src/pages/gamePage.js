@@ -3,6 +3,61 @@ import { onChatMessage, sendChatMessage } from '../connect.js';
 import { showWinnerScreen } from './winnerScreen.js';
 
 export async function loadGamePage(params = {}) {
+    // === MQTT - powiadomienia o aktywności graczy ===
+    const mqttClient = mqtt.connect('wss://test.mosquitto.org:8081/mqtt');
+    
+    mqttClient.on('connect', () => {
+        console.log('MQTT connected');
+        const topic = `slide-puzzle/activity/${roomId}`;
+        mqttClient.subscribe(topic, (err) => {
+            if (!err) {
+                console.log(`Subscribed to topic: ${topic}`);
+            } else {
+                console.error('Subscription error:', err);
+            }
+        });
+    });
+
+    // Odbieranie powiadomień
+    mqttClient.on('message', (topic, message) => {
+
+        const event = JSON.parse(message.toString());
+        console.log(`Activity event received:`, event);
+
+        // Obsługa zdarzeń
+        if (event.event === 'join') {
+            displayNotification(`👤 ${event.playerName} joined the room.`);
+        } else if (event.event === 'leave') {
+            displayNotification(`🚪 ${event.playerName} left the room.`);
+        } else if (event.event === 'startGame') {
+            displayNotification(`🚀 The game has started!`);
+        } else {
+            displayNotification(`ℹ️ ${event.message}`);
+        }
+    });
+
+    // Funkcja wyświetlająca powiadomienia
+    function displayNotification(text) {
+        // console.log('Displaying notification:', text);
+        const notifications = document.getElementById('notifications');
+        console.log(document.getElementById('notifications'));
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = text;
+        notifications.appendChild(notification);
+
+        // Pokaż powiadomienie
+        setTimeout(() => {
+            notification.style.opacity = 1;
+        }, 10);
+
+        // Usuń powiadomienie po 5 sekundach
+        setTimeout(() => {
+            notification.style.opacity = 0;
+            setTimeout(() => notification.remove(), 500);
+        }, 5000);
+    }
+    //
 
     const roomId = params.roomId; // extract roomId
     const playerName = params.playerName; // use playerName from navigation parameters
@@ -24,6 +79,8 @@ export async function loadGamePage(params = {}) {
                 <div class="board" id="puzzle-board"></div>
                 <div class="time"><h1>Time: <span id="time">0</span> seconds</h1></div>
             </div>
+            <div id="notifications" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+            </div>
             <div id="chat-container">
                 <div id="chat-messages"></div>
                 <input type="text" id="chat-input" placeholder="Type your message">
@@ -35,7 +92,7 @@ export async function loadGamePage(params = {}) {
     // Listen for gameEnded
     socket.on('gameEnded', ({ winner, time }) => {
         console.log('gameEnded received:', { winner, time });
-        showWinnerScreen( winner, time );
+        showWinnerScreen( { winner, time } );
     });
 
     // ==== game logic ====
@@ -108,12 +165,12 @@ export async function loadGamePage(params = {}) {
         }
 
         p.mousePressed = () => {
-            console.log("Mouse pressed at:", p.mouseX, p.mouseY);
+            // console.log("Mouse pressed at:", p.mouseX, p.mouseY);
             let i = p.floor(p.mouseX / w); //col
             let j = p.floor(p.mouseY / h); //row
             if (move(i, j, board)) {
                 turnCount++;
-                console.log("Turn count:", turnCount);
+                // console.log("Turn count:", turnCount);
                 // document.getElementById("turns").innerText = turnCount;
             }
         }
@@ -190,8 +247,8 @@ export async function loadGamePage(params = {}) {
                     playerName: playerName, // Player's name
                     time: completionTime.toFixed(2) // Time taken
                 });
-
-                showWinnerScreen({ winner: playerName, time: completionTime.toFixed(2) });
+                
+                // showWinnerScreen({ winner: playerName, time: completionTime.toFixed(2) });
             }
         }
 
@@ -230,7 +287,7 @@ export async function loadGamePage(params = {}) {
 
     // === chat logic ===
 
-    const chatMessages = document.getElementById('chat-messages');
+    // const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
     const chatSend = document.getElementById('chat-send');
 
@@ -278,4 +335,5 @@ export async function loadGamePage(params = {}) {
         new p5(sketch);
     }
 
+    
 }

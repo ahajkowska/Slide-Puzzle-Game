@@ -63,7 +63,6 @@ export function loadWaitingRoomPage() {
             socket.emit('createRoom', { roomId, maxPlayers, playerName });
             currentRoomId = roomId;
             console.log(`Room created with ID: ${currentRoomId}`);
-            // init(roomId)
         } else {
             console.error('Room ID or max players not provided');
         }
@@ -95,7 +94,7 @@ export function loadWaitingRoomPage() {
 
     // Update room details
     socket.on('roomUpdate', (room) => {
-        console.log(`roomUpdate room: ${room}`)
+        // console.log(`roomUpdate room: ${room}`)
         
         if (!room || typeof room !== 'object') {
             console.error('Invalid room data received in roomUpdate:', room);
@@ -130,10 +129,8 @@ export function loadWaitingRoomPage() {
 
     //Navigate to game page when game starts
     socket.on('gameStarted', (room) => {
-        // console.log(`GameStarted params: ${room.players[0]}`)
         console.log(`Game started, navigating to game room: ${room.roomId}`);
         navigateTo(`/game`, { roomId: room.roomId, playerName });
-    
     });
 
 }

@@ -233,3 +233,23 @@ input {
     display: flex;
     justify-content: left;
 }
+
+.notification {
+    background-color: white;
+    color: rgb(0, 0, 0);
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-family: Arial, sans-serif;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+#notifications {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    max-width: 300px;
+}

@@ -5,6 +5,8 @@ const path = require('path');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+const mqtt = require('mqtt');
+const mqttClient = mqtt.connect('wss://test.mosquitto.org:8081/mqtt'); // Publiczny broker MQTT
 
 const authRoutes = require('./routes/authRoutes');
 
@@ -67,6 +69,11 @@ app.get('/api/leaderboard/search', async (req, res) => {
 // Przekierowanie wszystkich innych tras na index.html (dla SPA)
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
+});
+
+// MQTT 
+mqttClient.on('connect', () => {
+    console.log('MQTT connected');
 });
 
 mongoose
@@ -135,12 +142,28 @@ io.on('connection', (socket) => {
         
         socket.join(roomId);
         console.log(`User ${playerName} joined room ${roomId}`);
+
+        
+        // Publikowanie zdarzenia do MQTT
+        const topic = `slide-puzzle/activity/${roomId}`;
+        const message = JSON.stringify({ event: 'join', playerName });
+        mqttClient.publish(topic, message);
+
+        console.log(`Published to MQTT topic ${topic}:`, message);
+        
         io.to(roomId).emit('roomUpdate', { roomId, ...rooms[roomId] });
     });
 
     socket.on('startGame', (roomId) => {
         console.log(`Game started in room ${roomId}`);
         
+        // Publikowanie zdarzenia do MQTT
+        const topic = `slide-puzzle/activity/${roomId}`;
+        const message = JSON.stringify({ event: 'startGame' });
+        mqttClient.publish(topic, message);
+
+        console.log(`Published to MQTT topic ${topic}:`, message);
+        //
         const room = rooms[roomId];
         if (!room) {
             socket.emit('error', 'Room does not exist');
@@ -176,27 +199,27 @@ io.on('connection', (socket) => {
         }
     
         const room = rooms[roomId];
-        console.log(room)
-        console.log(playerName)
+        // console.log(room)
+        // console.log(playerName)
         const player = room.players.find((p) => p.name === playerName);
-        console.log(`Winner in PuzzleSolved:`, player);
     
         player.completed = true;
         player.time = time;
     
-        console.log(`Player ${playerName} in room ${roomId} completed in ${time} seconds.`);
-    
+        console.log(`Winner in PuzzleSolved:`, player);
+
         // declare player as the winner
         room.gameState = 'completed';
         room.winner = player;
 
+        // io.to(roomId).emit('gameEnded', { winner: playerName, time });
         // broadcast the game ended event to all players in the room
-        io.to(roomId).emit('gameEnded', {
+        io.emit('gameEnded', {
             winner: playerName,
-            time: time,
+            time,
         });
         
-        console.log(`Game ended in room ${roomId}. Winner: ${player.name}`);
+        console.log(`Game ended in room ${roomId}. Winner: ${player.name}. Time: ${time} seconds`);
     });
     
     // Obsługa rozłączenia
@@ -205,7 +228,22 @@ io.on('connection', (socket) => {
 
         // remove a player from any room
         for (const [roomId, room] of Object.entries(rooms)) {
+
+            const player = room.players.find(p => p.id === socket.id);
+            if (player) {
+                room.players = room.players.filter(p => p.id !== socket.id);
+                console.log(`Player ${player.name} left room ${roomId}`);
+
+                // Publikowanie zdarzenia do MQTT
+                const topic = `slide-puzzle/activity/${roomId}`;
+                const message = JSON.stringify({ event: 'leave', playerName: player.name });
+                mqttClient.publish(topic, message);
+
+                console.log(`Published to MQTT topic ${topic}:`, message);
+            }
+
             room.players = room.players.filter(player => player.id !== socket.id);
+            
             if (room.players.length === 0) {
                 delete rooms[roomId]; // delete empty room
                 console.log(`Room deleted: ${roomId}`);
@@ -218,7 +256,7 @@ io.on('connection', (socket) => {
     // ==== chat function ====
 
     socket.on('chatMessage', (messageData) => {
-        console.log('server -> Message received:', messageData);
+        // console.log('server -> Message received:', messageData);
         const { roomId, playerName, message } = messageData;
 
         if (!roomId || !playerName || !message) {

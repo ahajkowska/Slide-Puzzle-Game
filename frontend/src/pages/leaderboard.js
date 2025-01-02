@@ -37,12 +37,13 @@ export async function loadLeaderboardPage() {
         const query = document.getElementById('search-input').value.trim();
         fetchLeaderboardData(query);
     });
-    // document.getElementById('search-btn').addEventListener('keypress', (e) => {
-    //     if (e.key === 'Enter') {
-    //         const query = document.getElementById('search-input').value.trim();
-    //         fetchLeaderboardData(query);
-    //     }
-    // });
+    
+    document.getElementById('search-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const query = document.getElementById('search-input').value.trim();
+            fetchLeaderboardData(query);
+        }
+    });
 
     // fetch leaderboard data and display it
     fetchLeaderboardData();
