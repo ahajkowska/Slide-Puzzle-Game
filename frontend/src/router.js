@@ -4,6 +4,7 @@ import { loadRegisterPage } from './pages/register.js';
 import { loadWaitingRoomPage } from './pages/waitingRoom.js';
 import { loadGamePage } from './pages/gamePage.js';
 import { loadLeaderboardPage } from './pages/leaderboard.js';
+import { loadAdminDashboard } from './pages/adminDashboard.js';
 
 // SPA Router
 const routes = {
@@ -12,7 +13,8 @@ const routes = {
     '/register': loadRegisterPage,
     '/waiting-room': loadWaitingRoomPage,
     '/game': loadGamePage,
-    '/leaderboard': loadLeaderboardPage
+    '/leaderboard': loadLeaderboardPage,
+    '/admin': loadAdminDashboard,
 };
 
 // navigate to different pages

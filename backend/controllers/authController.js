@@ -20,7 +20,7 @@ const loginUser = async (req, res) => {
 
         // Compare the entered password with the hashed password in the DB
         const isMatch = await bcrypt.compare(password, user.password);
-        console.log("Password match result:", isMatch);
+        // console.log("Password match result:", isMatch);
 
         if (!isMatch) {
             console.error('Invalid password');
@@ -28,7 +28,7 @@ const loginUser = async (req, res) => {
         }
 
         // Successful login response
-        return res.status(200).json({ message: 'Login successful', username: user.username });
+        return res.status(200).json({ message: 'Login successful', username: user.username, role: user.role });
     } catch (error) {
         console.error("Error during login:", error);
         return res.status(500).json({ message: "Internal server error" });

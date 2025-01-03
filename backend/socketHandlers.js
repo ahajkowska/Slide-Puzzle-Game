@@ -1,11 +1,10 @@
 // socket.io i mqtt
 const Leaderboard = require('./models/Leaderboard'); // import leaderboard model
-// const mqttClient = require('mqtt').connect('wss://test.mosquitto.org:8081/mqtt'); // broker MQTT
 
 const rooms = {};
 
 const setupSocket = (io, mqttClient) => {
-    const rooms = {}; // przechowywanie stanu pokoi w pamięci
+    // const rooms = {}; // przechowywanie stanu pokoi w pamięci
 
     // handle WebSocket connections
     io.on('connection', (socket) => {

@@ -11,6 +11,9 @@ const mqttClient = mqtt.connect('wss://test.mosquitto.org:8081/mqtt');
 const setupSocket = require('./socketHandlers.js');
 const authRoutes = require('./routes/authRoutes');
 const Leaderboard = require('./models/Leaderboard');
+const userRoutes = require('./routes/userRoutes');
+const mockUser = require('./middleware/mockUser');
+const roleMiddleware = require('./middleware/roleMiddleware');
 
 dotenv.config();
 
@@ -21,15 +24,19 @@ const io = new Server(server);
 app.use(express.json());
 app.use(cors()); // umożliwia serwerowi obsługę żądań z innych domen
 
+// mock user middleware globally
+app.use(mockUser);
+
 // Serwowanie statycznych plików z folderu frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/api/auth', authRoutes); // Obsługa tras rejestracji i logowania
+app.use('/api/users', userRoutes);
 
 // === leaderboard endpoint ===
 app.get('/api/leaderboard', async (req, res) => {
     try {
-        const leaderboard = await Leaderboard.find().sort({ time: 1 }).limit(10); // top 10 by fastest time
+        const leaderboard = await Leaderboard.find().sort({ time: 1 }).limit(5); // top 5 by fastest time
         res.json(leaderboard);
     } catch (error) {
         console.error('Error fetching leaderboard:', error);
@@ -56,6 +63,62 @@ app.get('/api/leaderboard/search', async (req, res) => {
     }
 });
 
+// === update a leaderboard entry by ID ===
+app.patch('/api/leaderboard/:id', roleMiddleware('admin'), async (req, res) => {
+    const { id } = req.params;
+    const { time } = req.body;
+
+    if (!time || isNaN(time)) {
+        return res.status(400).json({ error: 'Invalid or missing time value' });
+    }
+
+    try {
+        const updatedEntry = await Leaderboard.findByIdAndUpdate(
+            id,
+            { time },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedEntry) {
+            return res.status(404).json({ error: 'Leaderboard entry not found' });
+        }
+
+        res.json(updatedEntry);
+    } catch (error) {
+        console.error('Error updating leaderboard entry:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// === delete leaderboard entry by ID ===
+app.delete('/api/leaderboard/:id', roleMiddleware('admin'), async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const deletedEntry = await Leaderboard.findByIdAndDelete(id);
+
+        if (!deletedEntry) {
+            return res.status(404).json({ error: 'Leaderboard entry not found' });
+        }
+
+        res.json({ message: 'Leaderboard entry deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting leaderboard entry:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// === delete all leaderboard entries ===
+app.delete('/api/leaderboard', roleMiddleware('admin'), async (req, res) => {
+    try {
+        const result = await Leaderboard.deleteMany({});
+        res.json({ message: 'All leaderboard entries deleted', deletedCount: result.deletedCount });
+    } catch (error) {
+        console.error('Error deleting leaderboard entries:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Przekierowanie wszystkich innych tras na index.html (dla SPA)
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
@@ -66,10 +129,10 @@ mongoose
    .then(() => console.log('Connected to MongoDB'))
    .catch((err) => console.error('MongoDB connection error:', err));
 
-// MQTT 
-mqttClient.on('connect', () => {
-    console.log('MQTT connected');
-});
+// // MQTT 
+// mqttClient.on('connect', () => {
+//     console.log('MQTT connected');
+// });
 
 setupSocket(io, mqttClient); // pokoje i gracze
 

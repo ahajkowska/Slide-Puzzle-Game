@@ -39,7 +39,7 @@ export function loadWaitingRoomPage() {
     if ( !localStorage.getItem('username') ) {
         localStorage.setItem('username', playerName)
     }
-    console.log("username from localStorage2:", localStorage.getItem('username'));
+    // console.log("username from localStorage2:", localStorage.getItem('username'));
     console.log(`player name is: ${playerName}`)
 
     const playerList = document.getElementById('player-list');

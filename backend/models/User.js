@@ -8,8 +8,6 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        // minlength: 3,
-        // maxlength: 30
     },
     password: {
         type: String,
@@ -17,13 +15,9 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['guest', 'logged user'],
-        default: 'guest',
+        enum: ['guest', 'logged', 'admin'],
+        default: 'logged',
     },
-});
-
-UserSchema.pre('save', async function (next) {
-    next();
 });
 
 UserSchema.methods.comparePassword = async function (password) {
