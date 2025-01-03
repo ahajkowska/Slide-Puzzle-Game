@@ -79,12 +79,17 @@ export function loadWaitingRoomPage() {
     }
 
     // Join room
-    joinRoomBtn.addEventListener('click', () => {
+    joinRoomBtn.addEventListener('click', async () => {
         const roomId = joinRoomIdInput.value;
         if (roomId) {
-            socket.emit('joinRoom', { roomId, playerName });///
-            currentRoomId = roomId;
-            console.log(`Joined room with ID: ${currentRoomId}`);
+            const roomExists = await checkRoomExists(roomId);
+            if (roomExists) {
+                socket.emit('joinRoom', { roomId, playerName });
+                currentRoomId = roomId;
+                console.log(`Joined room with ID: ${currentRoomId}`);
+            } else {
+                alert('Room does not exist. Please enter a valid Room ID.');
+            }
         } else {
             console.error('Room ID not provided');
         }
@@ -132,5 +137,20 @@ export function loadWaitingRoomPage() {
         console.log(`Game started, navigating to game room: ${room.roomId}`);
         navigateTo(`/game`, { roomId: room.roomId, playerName });
     });
+}
 
+// check if room exists
+async function checkRoomExists(roomId) {
+    try {
+        const response = await fetch(`/api/rooms/${roomId}`);
+        if (!response.ok) {
+            console.error(`Error checking room existence: ${response.statusText}`);
+            return false;
+        }
+        const data = await response.json();
+        return data.exists; // returns `{ exists: true/false }`
+    } catch (error) {
+        console.error('Error checking room existence:', error);
+        return false;
+    }
 }

@@ -35,13 +35,13 @@ export async function loadLeaderboardPage() {
     // -- search by pattern --
     document.getElementById('search-btn').addEventListener('click', () => {
         const query = document.getElementById('search-input').value.trim();
-        fetchLeaderboardData(query);
+        fetchLeaderboardData(role, query);
     });
     
     document.getElementById('search-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             const query = document.getElementById('search-input').value.trim();
-            fetchLeaderboardData(query);
+            fetchLeaderboardData(role, query);
         }
     });
 
@@ -50,7 +50,7 @@ export async function loadLeaderboardPage() {
             try {
                 await deleteAllLeaderboardEntries();
                 alert('All entries deleted successfully');
-                fetchLeaderboardData(); // refresh the leaderboard
+                fetchLeaderboardData(role, ''); // refresh the leaderboard
             } catch (error) {
                 alert('Failed to delete all entries');
             }
@@ -63,7 +63,7 @@ export async function loadLeaderboardPage() {
     }
 
     // fetch leaderboard data and display it
-    fetchLeaderboardData(role);
+    fetchLeaderboardData(role, '');
 }
 
 async function fetchLeaderboardData(role, query = '') {
@@ -112,7 +112,7 @@ function attachActionListeners(role) {
                 updateLeaderboardEntry(id, parseFloat(newTime))
                     .then(() => {
                         alert('Entry updated successfully');
-                        fetchLeaderboardData(role); // refresh the leaderboard
+                        fetchLeaderboardData(role, ''); // refresh the leaderboard
                     })
                     .catch(() => alert('Failed to update entry'));
             } else {
@@ -128,7 +128,7 @@ function attachActionListeners(role) {
                 try {
                     await deleteLeaderboardEntry(id);
                     alert('Entry deleted successfully');
-                    fetchLeaderboardData(role); // refresh the table
+                    fetchLeaderboardData(role, ''); // refresh the table
                 } catch (error) {
                     alert('Failed to delete entry');
                 }

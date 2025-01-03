@@ -4,8 +4,7 @@ const Leaderboard = require('./models/Leaderboard'); // import leaderboard model
 const rooms = {};
 
 const setupSocket = (io, mqttClient) => {
-    // const rooms = {}; // przechowywanie stanu pokoi w pamięci
-
+    
     // handle WebSocket connections
     io.on('connection', (socket) => {
         console.log('A user connected:', socket.id);
@@ -234,4 +233,4 @@ const setupSocket = (io, mqttClient) => {
 
 };
 
-module.exports = setupSocket;
+module.exports = { setupSocket, rooms }

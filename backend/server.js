@@ -8,12 +8,13 @@ const mongoose = require('mongoose');
 const mqtt = require('mqtt');
 const mqttClient = mqtt.connect('wss://test.mosquitto.org:8081/mqtt');
 
-const setupSocket = require('./socketHandlers.js');
+const { setupSocket } = require('./socketHandlers.js');
 const authRoutes = require('./routes/authRoutes');
 const Leaderboard = require('./models/Leaderboard');
 const userRoutes = require('./routes/userRoutes');
 const mockUser = require('./middleware/mockUser');
 const roleMiddleware = require('./middleware/roleMiddleware');
+const { rooms } = require('./socketHandlers.js');
 
 dotenv.config();
 
@@ -32,6 +33,17 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/api/auth', authRoutes); // Obsługa tras rejestracji i logowania
 app.use('/api/users', userRoutes);
+
+// checks if the room exists
+app.get('/api/rooms/:roomId', (req, res) => {
+    const { roomId } = req.params;
+
+    if (rooms[roomId]) {
+        res.json({ exists: true });
+    } else {
+        res.json({ exists: false });
+    }
+});
 
 // === leaderboard endpoint ===
 app.get('/api/leaderboard', async (req, res) => {
@@ -119,7 +131,7 @@ app.delete('/api/leaderboard', roleMiddleware('admin'), async (req, res) => {
     }
 });
 
-// Przekierowanie wszystkich innych tras na index.html (dla SPA)
+// przekierowanie wszystkich innych tras na index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
 });
