@@ -11,19 +11,21 @@ export async function loadLeaderboardPage() {
                 <input type="text" id="search-input" placeholder="Search by player name">
                 <button id="search-btn">Search</button>
             </div>
-            <table id="leaderboard-table">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Player</th>
-                        <th>Time (seconds)</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- data will be here -->
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table id="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Time (seconds)</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- data will be here -->
+                    </tbody>
+                </table>
+            </div>
             <button id="delete-all-btn" disabled>Delete All</button>            
         </div>
     `;

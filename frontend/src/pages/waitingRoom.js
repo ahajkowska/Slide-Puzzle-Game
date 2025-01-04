@@ -7,15 +7,15 @@ export function loadWaitingRoomPage() {
     const app = document.getElementById('app');
 
     app.innerHTML = `
-        <div>
+        <div id="waiting-room-container">
             <button id="return-btn">Return</button>
             <h1>Waiting Room</h1>
-            <div>
+            <div class="waiting-room-inputs">
                 <input type="text" id="room-id" placeholder="Room ID">
                 <input type="number" id="max-players" placeholder="Max Players" min="2" max="10">
                 <button id="create-room">Create Room</button>
             </div>
-            <div>
+            <div class="waiting-room-inputs">
                 <input type="text" id="join-room-id" placeholder="Room ID">
                 <button id="join-room">Join Room</button>
             </div>
@@ -27,8 +27,10 @@ export function loadWaitingRoomPage() {
             <div id="chat-container">
                 <h3>Chat</h3>
                 <div id="chat-messages"></div>
-                <input type="text" id="chat-input" placeholder="Type your message">
-                <button id="chat-send">Send</button>
+                <div id="chat-input-container">
+                    <input type="text" id="chat-input" placeholder="Type your message">
+                    <button id="chat-send">Send</button>
+                </div>
             </div>
         </div>
     `;

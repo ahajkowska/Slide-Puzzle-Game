@@ -1,158 +1,58 @@
-/* general */
-
 body{
-    font-family: Arial, sans-serif;
+    font-family: cursive, sans-serif;
     text-align: center;
     margin: 0;
     padding: 0;
     color: black;
-    background: #D5D96A;
+    background: #f7f4e9;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
+    /* overflow: hidden; */
 }
 
 button {
-    border: none;
+    border: 3px solid black;
     border-radius: 10px;
-    padding: 10px 20px;
-    background-color: #B0BF3B;
+    padding: 15px 30px;
+    background-color: #ffeaa7;
     color: black;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-shadow: 1px 1px white;
+    box-shadow: 3px 3px 0px black;
+    transition: all 0.2s ease;
+    font-family: cursive, sans-serif;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #909e29;
+    background-color: #f9ca24;
+    transform: translateY(-3px);
+    box-shadow: 5px 5px 0px black;
 }
 
 button:disabled {
-    background-color: #b0bf3b67;
+    background-color: #dcdcdc;
+    color: #999;
+    box-shadow: none;
     cursor: not-allowed;
 }
 
-/* homePage */
-
-.buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+/* Nagłówki */
+h1, h2 {
+    font-size: 3rem;
+    color: #2d3436;
+    text-shadow: 2px 2px white;
+    margin-bottom: 20px;
+    font-family: 'Patrick Hand', cursive;
 }
 
-.logo{
-    font-size: 4rem;
-    font-weight: bold;
-    padding-bottom: 10px;
-}
-
-/* Modal Background */
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto; /* Enable scrolling if needed */
-    background-color: rgba(0, 0, 0, 0.5);
-    color: black;
-}
-
-/* Modal Content */
-.modal-content {
-    background-color: #fefefe;
-    margin: 10% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 50%;
-    border-radius: 10px;
-    text-align: center;
-}
-
-.modal-content p {
-    text-align: left;
-}
-
-/* Close Button */
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* puzzle */
-
-.logo{
-    font-size: 40px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.board{
-    /* width: 400px; */
-    /* height: 400px; */
-    background-color: rgba(0, 0, 0, 0.386);
-}
-
-#puzzle-board{
-    border: 10px solid #B0BF3B;
-}
-
-.win-overlay {
-    display: flex; 
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 1000;
-}
-
-/* chat */
-#chat-container {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    width: 300px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 14px;
-    z-index: 1000;
-    display: block;
-}
-
-#chat-messages {
-    /* max-height: 200px; */
-    height: 200px;
-    overflow-y: auto;
-    margin-bottom: 10px;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background: white;
-    color: black;
-    display: block;
-}
-
-#chat-input {
-    width: calc(100% - 60px);
-    padding: 5px;
+h2 {
+    font-size: 2.5rem;
+    color: #0984e3;
 }
 
 input {
@@ -161,78 +61,13 @@ input {
     padding: 10px;
     width: 100%;
     box-sizing: border-box;
-}
-
-#player-list {
-    list-style: none;
-    padding: 0;
-}
-
-#player-list li {
-    padding: 5px;
-    border: 1px solid #ccc;
-    margin: 5px 0;
-    background: #fff;
-}
-
-/* leaderboard */
-
-.leaderboard-container {
-    width: 100%;
-    text-align: center;
-    padding: 20px;
-    color: black
-}
-
-#leaderboard-table {
-    /* width: 80%; */
-    margin: 20px auto;
-    border-collapse: collapse;
-}
-
-#leaderboard-table th, #leaderboard-table td {
-    border: 1px solid rgb(49, 49, 49);
-    padding: 8px;
-}
-
-#leaderboard-table th {
-    background-color: rgba(49, 49, 49, 0.676);
-    font-weight: bold;
-}
-
-/* search by pattern */
-
-.search-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px
-}
-
-#search-input {
-    width: 100%;
-    padding: 8px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-#search-button {
-    padding: 8px 12px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-#search-button:hover {
-    background-color: #0056b3;
+    font-family: cursive, sans-serif;
 }
 
 #return-btn {
-    display: flex;
-    justify-content: left;
+    position: fixed;
+    top: 10px;
+    left: 10px; 
 }
 
 .notification {
@@ -242,7 +77,7 @@ input {
     margin-bottom: 10px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    font-family: Arial, sans-serif;
+    font-family: cursive, sans-serif;
     opacity: 0;
     transition: opacity 0.5s ease;
 }
@@ -255,30 +90,23 @@ input {
     max-width: 300px;
 }
 
-#leave-game {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    z-index: 1000;
-    padding: 10px;
-    background-color: red;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
 
 #admin-dashboard {
     position: fixed;
     top: 10px;
     right: 10px;
-    z-index: 1000;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;  
 }
 
 #admin-dashboard:disabled {
     cursor: not-allowed;
+}
+
+#users-table {
+    border: 2px solid black;
+    background-color: white;
+}
+
+.update-role-btn {
+    padding: 5px 20px;
+    font-size: 1rem;
 }

@@ -48,7 +48,7 @@ app.get('/api/rooms/:roomId', (req, res) => {
 // === leaderboard endpoint ===
 app.get('/api/leaderboard', async (req, res) => {
     try {
-        const leaderboard = await Leaderboard.find().sort({ time: 1 }).limit(5); // top 5 by fastest time
+        const leaderboard = await Leaderboard.find().sort({ time: 1 }); // top 5 by fastest time
         res.json(leaderboard);
     } catch (error) {
         console.error('Error fetching leaderboard:', error);

@@ -1,0 +1,42 @@
+
+content .logo{
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.board{
+    background-color: black;
+    margin: 0;
+}
+
+#puzzle-board {
+    border: 10px solid #000000;
+    border-radius: 5px;
+    margin: 0;
+    padding: 0;
+}
+
+.time h1 {
+    font-size: 1rem;
+}
+
+.win-overlay {
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffeaa7ac;
+    z-index: 1000;
+}
+
+#leave-game {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background-color: red;
+}

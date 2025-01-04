@@ -1,0 +1,59 @@
+#waiting-room-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+#waiting-room-container h1 {
+    margin-bottom: 0;
+}
+
+.waiting-room-inputs {
+    display: flex;
+    
+    gap: 10px;
+    width: 100%;
+}
+
+.waiting-room-inputs input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 2px solid black;
+    border-radius: 5px;
+    box-shadow: 3px 3px 0px black;
+    font-family: cursive, sans-serif;
+}
+
+.waiting-room-inputs button, #start-game {
+    width: auto;
+    align-self: center;
+    padding: 5px 20px;
+}
+
+#room-info {
+    width: 100%;
+    text-align: center;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 10px;
+    background: white;
+    box-shadow: 3px 3px 0px black;
+}
+
+/* Lista graczy */
+#player-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+#player-list li {
+    padding: 10px;
+    margin-bottom: 5px;
+    border: 2px solid black;
+    border-radius: 5px;
+    background: #ffeaa7;
+}
