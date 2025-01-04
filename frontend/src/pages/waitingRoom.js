@@ -24,6 +24,12 @@ export function loadWaitingRoomPage() {
                 <ul id="player-list"></ul>
                 <button id="start-game" disabled>Start Game</button>
             </div>
+            <div id="chat-container">
+                <h3>Chat</h3>
+                <div id="chat-messages"></div>
+                <input type="text" id="chat-input" placeholder="Type your message">
+                <button id="chat-send">Send</button>
+            </div>
         </div>
     `;
 
@@ -31,8 +37,8 @@ export function loadWaitingRoomPage() {
         navigateTo('/'); // navigate back to home
     });
     
+    const mqttClient = mqtt.connect('wss://test.mosquitto.org:8081/mqtt');
     let currentRoomId = null;
-
     const playerName = localStorage.getItem('username') || `Guest_${Math.floor(Math.random() * 1000)}`;
     
     console.log("username from localStorage:", localStorage.getItem('username'));
@@ -68,7 +74,7 @@ export function loadWaitingRoomPage() {
         }
     });
 
-    // create room btn only for guests
+    // create room btn only for logged users
     if (playerName && !playerName.startsWith("Guest_")) {
         console.log("Logged-in user: Room creation allowed.");
         createRoomBtn.disabled = false;
@@ -95,6 +101,53 @@ export function loadWaitingRoomPage() {
         }
     });
 
+    // === Chat Functionality ===
+    
+    const chatInput = document.getElementById('chat-input');
+    const chatSendBtn = document.getElementById('chat-send');
+    const chatMessages = document.getElementById('chat-messages');
+
+    // subscribe to the general waiting room chat topic
+    const chatTopic = `waiting-room/general-chat`;
+
+    mqttClient.on('connect', () => {
+        mqttClient.subscribe(chatTopic, (err) => {
+            if (err) {
+                console.error(`Failed to subscribe to topic ${chatTopic}:`, err);
+            } else {
+                console.log(`Subscribed to general waiting room chat: ${chatTopic}`);
+            }
+        });
+    });
+
+    mqttClient.on('message', (topic, message) => {
+        if (topic === chatTopic) {
+            const msg = JSON.parse(message.toString());
+            displayChatMessage(msg.playerName, msg.message);
+        }
+    });
+
+    function displayChatMessage(sender, message) {
+        const msgElement = document.createElement('div');
+        msgElement.textContent = `${sender}: ${message}`;
+        chatMessages.appendChild(msgElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    chatSendBtn.addEventListener('click', () => {
+        const message = chatInput.value.trim();
+        if (message) {
+            mqttClient.publish(chatTopic, JSON.stringify({ playerName, message }));
+            chatInput.value = ''; // clear the input
+        }
+    });
+
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            chatSendBtn.click();
+        }
+    });
+
     // --- Socket.IO ---
 
     // Update room details
@@ -109,7 +162,7 @@ export function loadWaitingRoomPage() {
         currentRoomId = room.roomId;
         console.log(`Updated currentRoomId: ${currentRoomId}`);
         
-        // Update player list in the UI
+        // update player list in the UI
         playerList.innerHTML = '';
         room.players.forEach((player) => {
             const li = document.createElement('li');
@@ -117,7 +170,7 @@ export function loadWaitingRoomPage() {
             playerList.appendChild(li);
         });
 
-        // Enable the start game button for the room creator
+        // enable the start game button for the room creator
         startGameBtn.disabled = room.players[0].id !== socket.id;
     });
 
