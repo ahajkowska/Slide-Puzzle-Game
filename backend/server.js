@@ -46,6 +46,18 @@ app.get('/api/rooms/:roomId', (req, res) => {
 });
 
 // === leaderboard endpoint ===
+app.post('/api/leaderboard', async (req, res) => {
+    const { playerName, time } = req.body;
+
+    try {
+        const newEntry = await Leaderboard.create({ playerName, time });
+        res.status(201).json(newEntry);
+    } catch (error) {
+        console.error('Error creating leaderboard entry:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 app.get('/api/leaderboard', async (req, res) => {
     try {
         const leaderboard = await Leaderboard.find().sort({ time: 1 }); // top 5 by fastest time

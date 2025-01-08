@@ -1,4 +1,5 @@
 // socket.io i mqtt
+const axios = require('axios');
 const Leaderboard = require('./models/Leaderboard'); // import leaderboard model
 
 const rooms = {};
@@ -116,10 +117,21 @@ const setupSocket = (io, mqttClient) => {
             }
 
             try {
-                // add player's score to the leaderboard
-                await Leaderboard.create({ playerName, time });
+                // HTTP POST to add player's score to the leaderboard
+                const response = await axios.post('http://localhost:3001/api/leaderboard', {
+                    playerName,
+                    time
+                });
+                console.log('Leaderboard updated via HTTP:', response.data);
             } catch (error) {
-                console.error('Error updating leaderboard:', error);
+                console.error('Error updating leaderboard via HTTP:', error.message);
+                try {
+                    // add player's score to the leaderboard; using the Leaderboard model directly
+                    const newEntry = await Leaderboard.create({ playerName, time });
+                    console.log('Fallback: Leaderboard updated directly via DB:', newEntry);
+                } catch (error) {
+                    console.error('Error updating leaderboard via DB:', error);
+                }
             }
 
             const room = rooms[roomId];

@@ -106,7 +106,7 @@ input {
     background-color: white;
 }
 
-.update-role-btn {
+.update-role-btn .delete-user-btn{
     padding: 5px 20px;
     font-size: 1rem;
 }

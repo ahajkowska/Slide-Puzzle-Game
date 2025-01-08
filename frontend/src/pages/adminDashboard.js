@@ -57,11 +57,13 @@ async function fetchAndDisplayUsers() {
                         <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
                     </select>
                     <button class="update-role-btn" data-id="${user._id}">Update</button>
+                    <button class="delete-user-btn" data-id="${user._id}">Delete</button>
                 </td>
             </tr>
         `).join('');
 
         attachRoleChangeListeners();
+        attachDeleteListeners();
     } catch (error) {
         console.error('Error fetching users:', error);
     }
@@ -95,6 +97,36 @@ function attachRoleChangeListeners() {
             } catch (error) {
                 console.error('Error updating role:', error);
                 alert('Failed to update role');
+            }
+        });
+    });
+}
+
+
+function attachDeleteListeners() {
+    document.querySelectorAll('.delete-user-btn').forEach(button => {
+        button.addEventListener('click', async () => {
+            const userId = button.dataset.id;
+
+            try {
+                const response = await fetch(`/api/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'x-user-role': localStorage.getItem('role'),
+                        'x-user-name': localStorage.getItem('username'),
+                    },
+                });
+
+                if (response.ok) {
+                    alert('User deleted successfully');
+                    fetchAndDisplayUsers(); // refresh the table
+                } else {
+                    const error = await response.json();
+                    alert(`Failed to delete user: ${error.error}`);
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                alert('Failed to delete user');
             }
         });
     });

@@ -19,7 +19,7 @@ router.patch('/role/:id', roleMiddleware('admin'), async (req, res) => {
     const { id } = req.params;
     const { role } = req.body;
 
-    // Validate the new role
+    // validate the new role
     if (!['guest', 'logged', 'admin'].includes(role)) {
         return res.status(400).json({ error: 'Invalid role' });
     }
@@ -38,6 +38,24 @@ router.patch('/role/:id', roleMiddleware('admin'), async (req, res) => {
         res.json({ message: 'User role updated successfully', user: updatedUser });
     } catch (error) {
         console.error('Error updating user role:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// delete a user (admin only)
+router.delete('/:id', roleMiddleware('admin'), async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const deletedUser = await User.findByIdAndDelete(id);
+
+        if (!deletedUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({ message: 'User deleted successfully', user: deletedUser });
+    } catch (error) {
+        console.error('Error deleting user:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
