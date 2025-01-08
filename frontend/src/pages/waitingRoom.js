@@ -1,4 +1,5 @@
 import { getSocket } from '../connect.js';
+import { getMQTTClient } from '../mqttClient.js';
 const socket = getSocket();
 
 import { navigateTo } from '../router.js';
@@ -9,6 +10,7 @@ export function loadWaitingRoomPage() {
     app.innerHTML = `
         <div id="waiting-room-container">
             <button id="return-btn">Return</button>
+            <div id="notifications"></div>
             <h1>Waiting Room</h1>
             <div class="waiting-room-inputs">
                 <input type="text" id="room-id" placeholder="Room ID">
@@ -39,7 +41,6 @@ export function loadWaitingRoomPage() {
         navigateTo('/'); // navigate back to home
     });
     
-    const mqttClient = mqtt.connect('wss://test.mosquitto.org:8081/mqtt');
     let currentRoomId = null;
     const playerName = localStorage.getItem('username') || `Guest_${Math.floor(Math.random() * 1000)}`;
     
@@ -109,10 +110,20 @@ export function loadWaitingRoomPage() {
     const chatSendBtn = document.getElementById('chat-send');
     const chatMessages = document.getElementById('chat-messages');
 
+    const mqttClient = getMQTTClient();
+    
     // subscribe to the general waiting room chat topic
     const chatTopic = `waiting-room/general-chat`;
 
     mqttClient.on('connect', () => {
+        mqttClient.subscribe('waiting-room/new-room', (err) => {
+            if (err) {
+                console.error(`Failed to subscribe to topic waiting-room/new-room:`, err);
+            } else {
+                console.log(`Subscribed to waiting-room/new-room`);
+            }
+        });
+
         mqttClient.subscribe(chatTopic, (err) => {
             if (err) {
                 console.error(`Failed to subscribe to topic ${chatTopic}:`, err);
@@ -123,11 +134,34 @@ export function loadWaitingRoomPage() {
     });
 
     mqttClient.on('message', (topic, message) => {
+        if (topic === 'waiting-room/new-room') {
+            const { roomId, maxPlayers } = JSON.parse(message.toString());
+            console.log("displaying new room notification")
+            displayNewRoomNotification(roomId, maxPlayers);
+        }
+
         if (topic === chatTopic) {
             const msg = JSON.parse(message.toString());
             displayChatMessage(msg.playerName, msg.message);
         }
     });
+
+    function displayNewRoomNotification(roomId, maxPlayers) {
+        const notifications = document.getElementById('notifications');
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = `New room created: ${roomId} (Max players: ${maxPlayers})`;
+        notifications.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.opacity = 1;
+        }, 10);
+
+        setTimeout(() => {
+            notification.style.opacity = 0;
+            setTimeout(() => notification.remove(), 500);
+        }, 5000);
+    }
 
     function displayChatMessage(sender, message) {
         const msgElement = document.createElement('div');

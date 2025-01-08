@@ -1,8 +1,9 @@
 import { getSocket } from '../connect.js';
+import { getMQTTClient } from '../mqttClient.js';
 
 // === MQTT - powiadomienia o aktywności graczy ===
 export function setupMQTT(roomId) {
-    const mqttClient = mqtt.connect('wss://test.mosquitto.org:8081/mqtt');
+    const mqttClient = getMQTTClient();
     
     mqttClient.on('connect', () => {
         console.log('MQTT connected');

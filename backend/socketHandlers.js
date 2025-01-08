@@ -34,6 +34,12 @@ const setupSocket = (io, mqttClient) => {
 
             socket.join(roomId);
             io.to(roomId).emit('roomUpdate', { ...rooms[roomId], roomId });
+
+            // publikowanie info o nowym pokoju do MQTT
+            const roomTopic = 'waiting-room/new-room';
+            const roomMessage = JSON.stringify({ roomId, maxPlayers });
+            mqttClient.publish(roomTopic, roomMessage);
+            console.log(`Published to MQTT topic ${roomTopic}:`, roomMessage);
         });
 
         // gracz dołącza do pokoju
