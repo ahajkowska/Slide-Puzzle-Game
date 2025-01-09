@@ -85,7 +85,7 @@ async function fetchLeaderboardData(role, query = '') {
                     <td>${index + 1}</td>
                     <td>${entry.playerName}</td>
                     <td><span class="editable-time" data-id="${entry._id}">${entry.time}</span></td>
-                    <td>${new Date(entry.date).toLocaleDateString()}</td>
+                    <td><span class="editable-date" data-id="${entry._id}">${new Date(entry.date).toLocaleDateString()}</span></td>
                     <td class="actions">
                         <button class="edit-btn" ${role !== 'admin' ? 'disabled' : ''} data-id="${entry._id}">Edit</button>
                         <button class="delete-btn" ${role !== 'admin' ? 'disabled' : ''} data-id="${entry._id}">Delete</button>
@@ -107,11 +107,15 @@ function attachActionListeners(role) {
     document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', () => {
             const id = button.dataset.id;
-            const timeElement = document.querySelector(`.editable-time[data-id="${id}"]`);
-            const newTime = prompt('Enter the new time (seconds):', timeElement.textContent);
 
-            if (newTime && !isNaN(newTime)) {
-                updateLeaderboardEntry(id, parseFloat(newTime))
+            const timeElement = document.querySelector(`.editable-time[data-id="${id}"]`);
+            const dateElement = document.querySelector(`.editable-date[data-id="${id}"]`);
+
+            const newTime = prompt('Enter the new time (seconds):', timeElement.textContent);
+            const newDate = prompt('Enter the new date (YYYY-MM-DD):', dateElement.textContent);
+
+            if (newTime && !isNaN(newTime) || newDate) {
+                updateLeaderboardEntry(id, parseFloat(newTime), newDate)
                     .then(() => {
                         alert('Entry updated successfully');
                         fetchLeaderboardData(role, ''); // refresh the leaderboard
@@ -139,15 +143,19 @@ function attachActionListeners(role) {
     });
 }
 
-async function updateLeaderboardEntry(id, newTime) {
+async function updateLeaderboardEntry(id, newTime, newDate) {
     try {
+        const body = {};
+        if (newTime) body.time = newTime;
+        if (newDate) body.date = newDate;
+
         const response = await fetch(`/api/leaderboard/${id}`, {
             method: 'PATCH',
             headers: { 
                 'Content-Type': 'application/json',
                 'x-user-role': localStorage.getItem('role'),
             },
-            body: JSON.stringify({ time: newTime }),
+            body: JSON.stringify(body),
         });
 
         if (!response.ok) throw new Error('Failed to update leaderboard entry');

@@ -14,6 +14,38 @@ router.get('/', roleMiddleware('admin'), async (req, res) => {
     }
 });
 
+// update user's login (admin only)
+router.patch('/update-login/:id', roleMiddleware('admin'), async (req, res) => {
+    const { id } = req.params;
+    const { newUsername } = req.body;
+
+    if (!newUsername || typeof newUsername !== 'string') {
+        return res.status(400).json({ error: 'Invalid or missing new username' });
+    }
+
+    try {
+        const existingUser = await User.findOne({ username: newUsername });
+        if (existingUser) {
+            return res.status(409).json({ error: 'Username already taken' });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
+            { username: newUsername },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({ message: 'Username updated successfully', user: updatedUser });
+    } catch (error) {
+        console.error('Error updating username:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // update user role (admin only)
 router.patch('/role/:id', roleMiddleware('admin'), async (req, res) => {
     const { id } = req.params;

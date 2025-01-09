@@ -90,16 +90,16 @@ app.get('/api/leaderboard/search', async (req, res) => {
 // === update a leaderboard entry by ID ===
 app.patch('/api/leaderboard/:id', roleMiddleware('admin'), async (req, res) => {
     const { id } = req.params;
-    const { time } = req.body;
+    const { time, date } = req.body;
 
-    if (!time || isNaN(time)) {
-        return res.status(400).json({ error: 'Invalid or missing time value' });
-    }
+    const updateFields = {};
+    if (time) updateFields.time = time;
+    if (date) updateFields.date = new Date(date);
 
     try {
         const updatedEntry = await Leaderboard.findByIdAndUpdate(
             id,
-            { time },
+            updateFields,
             { new: true } // Return the updated document
         );
 

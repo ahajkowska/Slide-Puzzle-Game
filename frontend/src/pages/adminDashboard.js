@@ -57,12 +57,14 @@ async function fetchAndDisplayUsers() {
                         <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
                     </select>
                     <button class="update-role-btn" data-id="${user._id}">Update</button>
+                    <button class="update-username-btn" data-id="${user._id}">Update Username</button>
                     <button class="delete-user-btn" data-id="${user._id}">Delete</button>
                 </td>
             </tr>
         `).join('');
 
         attachRoleChangeListeners();
+        attachUpdateUsernameListeners();
         attachDeleteListeners();
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -81,15 +83,15 @@ function attachRoleChangeListeners() {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-user-role': localStorage.getItem('role'), // Include logged-in user's role
-                        'x-user-name': localStorage.getItem('username'), // Include logged-in username
+                        'x-user-role': localStorage.getItem('role'),
+                        'x-user-name': localStorage.getItem('username'),
                     },
                     body: JSON.stringify({ role: newRole }),
                 });
 
                 if (response.ok) {
                     alert('Role updated successfully');
-                    fetchAndDisplayUsers(); // Refresh the table
+                    fetchAndDisplayUsers(); // refresh the table
                 } else {
                     const error = await response.json();
                     alert(`Failed to update role: ${error.error}`);
@@ -102,6 +104,42 @@ function attachRoleChangeListeners() {
     });
 }
 
+function attachUpdateUsernameListeners() {
+    document.querySelectorAll('.update-username-btn').forEach(button => {
+        button.addEventListener('click', async () => {
+            const userId = button.dataset.id;
+            const newUsername = prompt('Enter the new username:');
+
+            if (!newUsername) {
+                alert('Username cannot be empty.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/users/update-login/${userId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-role': localStorage.getItem('role'),
+                        'x-user-name': localStorage.getItem('username'),
+                    },
+                    body: JSON.stringify({ newUsername }),
+                });
+
+                if (response.ok) {
+                    alert('Username updated successfully');
+                    fetchAndDisplayUsers(); // refresh the table
+                } else {
+                    const error = await response.json();
+                    alert(`Failed to update username: ${error.error}`);
+                }
+            } catch (error) {
+                console.error('Error updating username:', error);
+                alert('Failed to update username');
+            }
+        });
+    });
+}
 
 function attachDeleteListeners() {
     document.querySelectorAll('.delete-user-btn').forEach(button => {
