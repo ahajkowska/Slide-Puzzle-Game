@@ -3,6 +3,7 @@ import { getMQTTClient } from '../mqttClient.js';
 const socket = getSocket();
 
 import { navigateTo } from '../router.js';
+import { setupWaitingRoomChat } from './chatPlayerActivity.js';
 
 export function loadWaitingRoomPage() {
     const app = document.getElementById('app');
@@ -28,7 +29,7 @@ export function loadWaitingRoomPage() {
             </div>
             <div id="chat-container">
                 <h3>Chat</h3>
-                <div id="chat-messages"></div>
+                <div id="chat-messages"><div id="typing-indicator"></div></div>
                 <div id="chat-input-container">
                     <input type="text" id="chat-input" placeholder="Type your message">
                     <button id="chat-send">Send</button>
@@ -104,122 +105,7 @@ export function loadWaitingRoomPage() {
     });
 
     // === Chat Functionality ===
-    
-    const chatInput = document.getElementById('chat-input');
-    const chatSendBtn = document.getElementById('chat-send');
-    const chatMessages = document.getElementById('chat-messages');
-
-    const mqttClient = getMQTTClient();
-
-    // subscribe to the general waiting room chat topic
-    const chatTopic = `waiting-room/general-chat`;
-
-    mqttClient.on('connect', () => {
-        if (!mqttClient.subscriptions) {
-            mqttClient.subscriptions = new Set(); // To track active subscriptions
-        }
-
-        if (!mqttClient.subscriptions.has('waiting-room/new-room')) {
-            mqttClient.subscribe('waiting-room/new-room', (err) => {
-                if (err) {
-                    console.error(`Failed to subscribe to topic waiting-room/new-room:`, err);
-                } else {
-                    console.log(`Subscribed to waiting-room/new-room`);
-                    mqttClient.subscriptions.add('waiting-room/new-room');
-                }
-            });
-        }
-
-        mqttClient.subscribe(chatTopic, (err) => {
-            if (err) {
-                console.error(`Failed to subscribe to topic ${chatTopic}:`, err);
-            } else {
-                console.log(`Subscribed to general waiting room chat: ${chatTopic}`);
-            }
-        });
-
-        mqttClient.subscribe('waiting-room/player-join', (err) => {
-            if (err) {
-                console.error(`Failed to subscribe to topic waiting-room/player-join:`, err);
-            } else {
-                console.log(`Subscribed to waiting-room/player-join`);
-            }
-        });
-    });
-
-    mqttClient.on('message', (topic, message) => {
-        if (topic === 'waiting-room/new-room') {
-            const { roomId, maxPlayers } = JSON.parse(message.toString());
-            console.log("displaying new room notification")
-            displayNewRoomNotification(roomId, maxPlayers);
-        }
-
-        if (topic === chatTopic) {
-            const msg = JSON.parse(message.toString());
-            displayChatMessage(msg.playerName, msg.message);
-        }
-
-        if (topic === 'waiting-room/player-join') {
-            const { roomId, playerName } = JSON.parse(message.toString());
-            console.log("displaying player join notification")
-            displayPlayerJoinNotification(roomId, playerName);
-        }
-    });
-    
-    function displayNewRoomNotification(roomId, maxPlayers) {
-        const notifications = document.getElementById('notifications');
-        const notification = document.createElement('div');
-        notification.className = 'notification';
-        notification.textContent = `New room created: ${roomId} (Max players: ${maxPlayers})`;
-        notifications.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.opacity = 1;
-        }, 10);
-
-        setTimeout(() => {
-            notification.style.opacity = 0;
-            setTimeout(() => notification.remove(), 500);
-        }, 5000);
-    }
-
-    function displayChatMessage(sender, message) {
-        const msgElement = document.createElement('div');
-        msgElement.textContent = `${sender}: ${message}`;
-        chatMessages.appendChild(msgElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    chatSendBtn.addEventListener('click', () => {
-        const message = chatInput.value.trim();
-        if (message) {
-            mqttClient.publish(chatTopic, JSON.stringify({ playerName, message }));
-            chatInput.value = ''; // clear the input
-        }
-    });
-
-    chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            chatSendBtn.click();
-        }
-    });
-
-    function displayPlayerJoinNotification(roomId, playerName) {
-        const notifications = document.getElementById('notifications');
-        const notification = document.createElement('div');
-        notification.className = 'notification';
-        notification.textContent = `${playerName} has joined room: ${roomId}`;
-        notifications.appendChild(notification);
-    
-        setTimeout(() => {
-            notification.style.opacity = 1; // Fade-in effect
-        }, 10);
-    
-        setTimeout(() => {
-            notification.style.opacity = 0; // Fade-out effect
-            setTimeout(() => notification.remove(), 500); // Remove after fade-out
-        }, 5000);
-    }    
+    setupWaitingRoomChat(playerName)
 
     // --- Socket.IO ---
 

@@ -52,3 +52,9 @@
 #chat-send:hover {
     background: #d63031;
 }
+
+#typing-indicator {
+    font-style: italic; 
+    color: gray; 
+    margin-top: 5px;
+}

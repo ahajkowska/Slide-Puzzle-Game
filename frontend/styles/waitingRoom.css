@@ -12,8 +12,7 @@
 }
 
 .waiting-room-inputs {
-    display: flex;
-    
+    display: flex; 
     gap: 10px;
     width: 100%;
 }
