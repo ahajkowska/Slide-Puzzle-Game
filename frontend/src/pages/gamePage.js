@@ -1,5 +1,5 @@
 import { getSocket } from '../connect.js';
-import { setupMQTT, setupChat } from './chatPlayerActivity.js';
+import { setupChat } from './chatPlayerActivity.js';
 import { initializeGame } from './gameLogic.js';
 import { showWinnerScreen } from './winnerScreen.js';
 import { navigateTo } from '../router.js';
@@ -37,7 +37,7 @@ export async function loadGamePage(params = {}) {
 
     const socket = getSocket();
 
-    setupMQTT(roomId);
+    // setupMQTT(roomId);
     setupChat(roomId, playerName);
     initializeGame(roomId, playerName, socket)
 
@@ -54,5 +54,6 @@ export async function loadGamePage(params = {}) {
     socket.on('gameEnded', ({ winner, time }) => {
         console.log('gameEnded received:', { winner, time });
         showWinnerScreen( { winner, time } );
+        socket.emit('leaveGame', { roomId, playerName });
     });
 }

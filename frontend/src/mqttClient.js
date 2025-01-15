@@ -1,4 +1,3 @@
-
 let mqttClientInstance;
 
 export function getMQTTClient() {

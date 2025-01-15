@@ -61,7 +61,6 @@ export function loadWaitingRoomPage() {
     const joinRoomBtn = document.getElementById('join-room');
     const joinRoomIdInput = document.getElementById('join-room-id');
 
-
     // === Room Management ===
 
     // Create room
@@ -111,24 +110,39 @@ export function loadWaitingRoomPage() {
     const chatMessages = document.getElementById('chat-messages');
 
     const mqttClient = getMQTTClient();
-    
+
     // subscribe to the general waiting room chat topic
     const chatTopic = `waiting-room/general-chat`;
 
     mqttClient.on('connect', () => {
-        mqttClient.subscribe('waiting-room/new-room', (err) => {
-            if (err) {
-                console.error(`Failed to subscribe to topic waiting-room/new-room:`, err);
-            } else {
-                console.log(`Subscribed to waiting-room/new-room`);
-            }
-        });
+        if (!mqttClient.subscriptions) {
+            mqttClient.subscriptions = new Set(); // To track active subscriptions
+        }
+
+        if (!mqttClient.subscriptions.has('waiting-room/new-room')) {
+            mqttClient.subscribe('waiting-room/new-room', (err) => {
+                if (err) {
+                    console.error(`Failed to subscribe to topic waiting-room/new-room:`, err);
+                } else {
+                    console.log(`Subscribed to waiting-room/new-room`);
+                    mqttClient.subscriptions.add('waiting-room/new-room');
+                }
+            });
+        }
 
         mqttClient.subscribe(chatTopic, (err) => {
             if (err) {
                 console.error(`Failed to subscribe to topic ${chatTopic}:`, err);
             } else {
                 console.log(`Subscribed to general waiting room chat: ${chatTopic}`);
+            }
+        });
+
+        mqttClient.subscribe('waiting-room/player-join', (err) => {
+            if (err) {
+                console.error(`Failed to subscribe to topic waiting-room/player-join:`, err);
+            } else {
+                console.log(`Subscribed to waiting-room/player-join`);
             }
         });
     });
@@ -144,8 +158,14 @@ export function loadWaitingRoomPage() {
             const msg = JSON.parse(message.toString());
             displayChatMessage(msg.playerName, msg.message);
         }
-    });
 
+        if (topic === 'waiting-room/player-join') {
+            const { roomId, playerName } = JSON.parse(message.toString());
+            console.log("displaying player join notification")
+            displayPlayerJoinNotification(roomId, playerName);
+        }
+    });
+    
     function displayNewRoomNotification(roomId, maxPlayers) {
         const notifications = document.getElementById('notifications');
         const notification = document.createElement('div');
@@ -183,6 +203,23 @@ export function loadWaitingRoomPage() {
             chatSendBtn.click();
         }
     });
+
+    function displayPlayerJoinNotification(roomId, playerName) {
+        const notifications = document.getElementById('notifications');
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = `${playerName} has joined room: ${roomId}`;
+        notifications.appendChild(notification);
+    
+        setTimeout(() => {
+            notification.style.opacity = 1; // Fade-in effect
+        }, 10);
+    
+        setTimeout(() => {
+            notification.style.opacity = 0; // Fade-out effect
+            setTimeout(() => notification.remove(), 500); // Remove after fade-out
+        }, 5000);
+    }    
 
     // --- Socket.IO ---
 

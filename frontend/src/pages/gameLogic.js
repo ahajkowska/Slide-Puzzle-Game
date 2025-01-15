@@ -61,7 +61,7 @@ export function initializeGame(roomId, playerName, socket) {
         }
 
         function shuffleIt(arr){
-            for (let i = 0; i < 20; i++){ // kafelki
+            for (let i = 0; i < 20; i++){ // kafelki, przesuń, shuffle
                 randomMove(arr);
             }
         }

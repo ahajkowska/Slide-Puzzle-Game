@@ -68,26 +68,17 @@ const setupSocket = (io, mqttClient) => {
 
             socket.join(roomId);
             console.log(`Socket ${socket.id}, user ${playerName} joined room ${roomId}`);
-
+            
             // publikowanie zdarzenia do MQTT
-            const topic = `slide-puzzle/activity/${roomId}`;
-            const message = JSON.stringify({ event: 'join', playerName });
+            const topic = 'waiting-room/player-join';
+            const message = JSON.stringify({ roomId, playerName });
             mqttClient.publish(topic, message);
-
-            console.log(`Published to MQTT topic ${topic}:`, message);
 
             io.to(roomId).emit('roomUpdate', { roomId, ...rooms[roomId] });
         });
 
         socket.on('startGame', (roomId) => {
             console.log(`Game started in room ${roomId}`);
-
-            // publikowanie zdarzenia do MQTT
-            const topic = `slide-puzzle/activity/${roomId}`;
-            const message = JSON.stringify({ event: 'startGame' });
-            mqttClient.publish(topic, message);
-
-            console.log(`Published to MQTT topic ${topic}:`, message);
 
             const room = rooms[roomId];
             if (!room) {
@@ -164,12 +155,6 @@ const setupSocket = (io, mqttClient) => {
                 // Usuń gracza z pokoju
                 rooms[roomId].players = rooms[roomId].players.filter(player => player.name !== playerName);
 
-                // Powiadom innych graczy
-                mqttClient.publish(`slide-puzzle/activity/${roomId}`, JSON.stringify({
-                    event: 'leave',
-                    playerName: playerName
-                }));
-
                 // Usuń pokój, jeśli nie ma graczy
                 if (rooms[roomId].players.length === 0) {
                     delete rooms[roomId];
@@ -193,12 +178,6 @@ const setupSocket = (io, mqttClient) => {
                     room.players = room.players.filter(p => p.id !== socket.id);
                     console.log(`Player ${player.name} left room ${roomId}`);
 
-                    // Publikowanie zdarzenia do MQTT
-                    const topic = `slide-puzzle/activity/${roomId}`;
-                    const message = JSON.stringify({ event: 'leave', playerName: player.name });
-                    mqttClient.publish(topic, message);
-
-                    console.log(`Published to MQTT topic ${topic}:`, message);
                 }
 
                 room.players = room.players.filter(player => player.id !== socket.id);
