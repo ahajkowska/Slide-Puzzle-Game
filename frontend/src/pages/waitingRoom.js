@@ -1,5 +1,4 @@
 import { getSocket } from '../connect.js';
-import { getMQTTClient } from '../mqttClient.js';
 const socket = getSocket();
 
 import { navigateTo } from '../router.js';

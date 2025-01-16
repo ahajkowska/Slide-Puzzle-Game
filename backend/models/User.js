@@ -1,5 +1,3 @@
-// API do logowania
-
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
@@ -16,7 +14,7 @@ const UserSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ['guest', 'logged', 'admin'],
-        default: 'logged',
+        default: 'guest',
     },
 });
 

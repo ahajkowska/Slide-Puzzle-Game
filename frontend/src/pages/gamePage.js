@@ -18,7 +18,6 @@ export async function loadGamePage(params = {}) {
 
     const app = document.getElementById('app');
 
-    // Check if the game board already exists
     app.innerHTML = `
             <button id="leave-game">Leave Game</button>
             <div class="content">
@@ -37,20 +36,19 @@ export async function loadGamePage(params = {}) {
 
     const socket = getSocket();
 
-    // setupMQTT(roomId);
     setupChat(roomId, playerName);
     initializeGame(roomId, playerName, socket)
 
     document.getElementById('leave-game').addEventListener('click', () => {
         if (confirm('Are you sure you want to leave the game?')) {
-            // Emitowanie zdarzenia opuszczenia gry
+            // emitowanie zdarzenia opuszczenia gry
             socket.emit('leaveGame', { roomId, playerName });
     
             navigateTo('/');
         }
     });     
 
-    // Listen for gameEnded
+    // listen for gameEnded
     socket.on('gameEnded', ({ winner, time }) => {
         console.log('gameEnded received:', { winner, time });
         showWinnerScreen( { winner, time } );

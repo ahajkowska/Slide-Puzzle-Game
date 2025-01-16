@@ -81,17 +81,21 @@ export function initializeGame(roomId, playerName, socket) {
             if (gameOver) return;
             p.background(0);
 
-            // Update elapsed time display
-            const elapsedTimeMs = Date.now() - startTime; // time in milliseconds
-            const seconds = Math.floor(elapsedTimeMs / 1000);
-            const milliseconds = Math.floor((elapsedTimeMs % 1000) / 10); // convert to two-digit
+            const timeElement = document.getElementById("time");
+            if (timeElement) {
+                // Update elapsed time display
+                const elapsedTimeMs = Date.now() - startTime; // time in milliseconds
+                const seconds = Math.floor(elapsedTimeMs / 1000);
+                const milliseconds = Math.floor((elapsedTimeMs % 1000) / 10); // convert to two-digit
 
-            // seconds.milliseconds
-            const formattedTime = `${seconds}.${milliseconds.toString().padStart(2, '0')}`;
+                // seconds.milliseconds
+                const formattedTime = `${seconds}.${milliseconds.toString().padStart(2, '0')}`;
+                // Update the display
+                timeElement.innerText = formattedTime;
+            } else {
+                console.error("Time element not found.");
+            }
 
-            // Update the display
-            document.getElementById("time").innerText = formattedTime;
-            
             // draw the board
             for (let i = 0; i < cols; i++){
                 for (let j = 0; j < rows; j++){
@@ -142,12 +146,12 @@ export function initializeGame(roomId, playerName, socket) {
             if (isSolved() && !gameOver) {
                 console.log("SOLVED!");
                 gameOver = true;
-                const completionTime = (Date.now() - startTime) / 1000; // Calculate elapsed time
+                const completionTime = (Date.now() - startTime) / 1000; // elapsed time
 
                 socket.emit('puzzleSolved', {
-                    roomId: roomId, // Room ID where the player is
-                    playerName: playerName, // Player's name
-                    time: completionTime.toFixed(2) // Time taken
+                    roomId: roomId, // room ID where the player is
+                    playerName: playerName, // player's name
+                    time: completionTime.toFixed(2) // time taken
                 });
                 
             }

@@ -19,6 +19,18 @@ export async function loadAdminDashboard() {
                     <!-- User data will be populated here -->
                 </tbody>
             </table>
+            <button id="create-user-btn">Create New User</button>
+            <div id="create-user-form" style="display: none;">
+                <h3>Create New User</h3>
+                <input type="text" id="new-username" placeholder="Username">
+                <input type="password" id="new-password" placeholder="Password">
+                <select id="new-role">
+                    <option value="guest">Guest</option>
+                    <option value="logged">Logged</option>
+                    <option value="admin">Admin</option>
+                </select>
+                <button id="submit-user-btn">Create User</button>
+            </div>
         </div>
     `;
 
@@ -26,19 +38,59 @@ export async function loadAdminDashboard() {
         navigateTo('/login');
     });
 
+    document.getElementById('create-user-btn').addEventListener('click', () => {
+        const form = document.getElementById('create-user-form');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    });
+    
+    document.getElementById('submit-user-btn').addEventListener('click', async () => {
+        const username = document.getElementById('new-username').value.trim();
+        const password = document.getElementById('new-password').value.trim();
+        const role = document.getElementById('new-role').value;
+    
+        if (!username || !password) {
+            alert('Username and password are required.');
+            return;
+        }
+    
+        try {
+            const response = await fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-user-role': localStorage.getItem('role'),
+                    'x-user-name': localStorage.getItem('username'),
+                },
+                body: JSON.stringify({ username, password, role }),
+            });
+    
+            if (response.ok) {
+                alert('User created successfully');
+                document.getElementById('create-user-form').style.display = 'none';
+                fetchAndDisplayUsers(); // Refresh the table
+            } else {
+                const error = await response.json();
+                alert(`Failed to create user: ${error.error}`);
+            }
+        } catch (error) {
+            console.error('Error creating user:', error);
+            alert('Failed to create user');
+        }
+    });    
+
     await fetchAndDisplayUsers();
 }
 
 async function fetchAndDisplayUsers() {
     try {
-        const username = localStorage.getItem('username'); // Get username from localStorage
-        const role = localStorage.getItem('role'); // Get role from localStorage
+        const username = localStorage.getItem('username'); // get username from localStorage
+        const role = localStorage.getItem('role'); // get role from localStorage
 
         const response = await fetch('/api/users', {
             method: 'GET',
             headers: {
-                'x-user-role': role, // Upewnij się, że wysyłasz rolę admina
-                'x-user-name': username, // Opcjonalnie dodaj nazwę użytkownika
+                'x-user-role': role,
+                'x-user-name': username,
             },
         });
 

@@ -1,7 +1,7 @@
 import { getSocket } from '../connect.js';
 import { getMQTTClient } from '../mqttClient.js';
 
-//=== chat && room activity in a waiting room ===
+// === chat && room activity in a waiting room ===
 export function setupWaitingRoomChat(playerName){
     
     const chatInput = document.getElementById('chat-input');
@@ -168,7 +168,7 @@ export function setupChat(roomId, playerName) {
             if (message) {
                 console.log('Sending message by enter:', { roomId, playerName, message });
                 socket.emit('addChatMessage', { roomId, playerName, message, timestamp: Date.now() });
-                chatInput.value = ''; // Clear the input
+                chatInput.value = ''; // clear the input
             }
         }
     });
@@ -181,7 +181,7 @@ export function setupChat(roomId, playerName) {
         msgElement.innerHTML = `<strong>${playerName}</strong> [${new Date(timestamp).toLocaleTimeString()}]: ${message}`;
         chatMessages.appendChild(msgElement);
 
-        // Automatycznie przewiń do dołu po dodaniu nowej wiadomości
+        // automatycznie przewiń do dołu po dodaniu nowej wiadomości
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }) 
 }

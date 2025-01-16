@@ -1,6 +1,6 @@
 // socket.io i mqtt
 const axios = require('axios');
-const Leaderboard = require('./models/Leaderboard'); // import leaderboard model
+const Leaderboard = require('./models/Leaderboard');
 
 const rooms = {};
 

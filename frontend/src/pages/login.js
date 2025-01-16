@@ -14,18 +14,19 @@ export function loadLoginPage() {
                 <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
                 <button type="submit">Login</button>
             </form>
-            <p id="signup-link">Don't have an account? <a href="#" id="goToRegister">Sign up here</a>.</p>        
+            <p id="signup-link">Don't have an account? <a href="#" id="goToRegister">Sign up here</a>.</p>  
+            <p id="change-password">Want to <a href='#' id="goToChangePassword">change password</a>?</p>      
         </div>
     `;
 
-    // Check if the user is an admin and enable the button
+    // check if the user is an admin and enable the button
     const adminDashboardButton = document.getElementById('admin-dashboard');
     const role = localStorage.getItem('role');
     const username = localStorage.getItem('username');
     const logoutButton = document.getElementById('logout-btn');
 
     if (role && username) {
-        // User is logged in
+        // user is logged in
         logoutButton.style.display = 'inline-block'; // show the logout button
         if (role === 'admin') {
             adminDashboardButton.disabled = false; // enable button if admin
@@ -44,7 +45,7 @@ export function loadLoginPage() {
     });
 
     document.getElementById('return-btn').addEventListener('click', () => {
-        navigateTo('/'); // navigate back to home
+        navigateTo('/');
     });
     
     // redirect to register
@@ -52,6 +53,13 @@ export function loadLoginPage() {
         e.preventDefault();
         import('./register.js').then(({ loadRegisterPage }) => {
             loadRegisterPage();
+        });
+    });
+
+    document.getElementById('goToChangePassword').addEventListener('click', (e) => {
+        e.preventDefault();
+        import('./changePassword.js').then(({ loadChangePasswordPage }) => {
+            loadChangePasswordPage();
         });
     });
 
@@ -72,16 +80,16 @@ export function loadLoginPage() {
 
             const data = await response.json();
             if (response.ok) {
-                localStorage.setItem("username", username); // store the username
+                localStorage.setItem("username", username); // store username
                 localStorage.setItem("role", data.role); // Store role
                 console.log("Username saved to localStorage:", data.username);
                 console.log("Role saved to localStorage:", data.role);
 
                 alert(data.message); // display login success message
 
-                // Redirect based on role
+                // redirect based on role
                 if (data.role === 'admin') {
-                    navigateTo('/admin'); // Navigate admin to the dashboard
+                    navigateTo('/admin'); // navigate admin to the dashboard
                 } else {
                     navigateTo(`/waiting-room`, { playerName: username }); // Non-admin goes to the waiting room
                 }

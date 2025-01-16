@@ -1,9 +1,9 @@
-import { navigateTo } from '../router.js'; // Ensure you import your router
+import { navigateTo } from '../router.js';
 
 export function showWinnerScreen({ winner, time }) {
     console.log(`Displaying winner screen: ${winner}, ${time}`);
 
-    // Remove any existing overlay to prevent duplicates
+    // remove any existing overlay to prevent duplicates
     const existingOverlay = document.querySelector('.win-overlay');
     if (existingOverlay) existingOverlay.remove();
 
@@ -22,7 +22,7 @@ export function showWinnerScreen({ winner, time }) {
         </div>
     `;
 
-    // Append the overlay to the body
+    // append the overlay to the body
     document.body.appendChild(overlay);
 
     document.getElementById('back-home-btn').addEventListener('click', () => {

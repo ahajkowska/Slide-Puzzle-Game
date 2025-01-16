@@ -5,8 +5,8 @@ import { loadWaitingRoomPage } from './pages/waitingRoom.js';
 import { loadGamePage } from './pages/gamePage.js';
 import { loadLeaderboardPage } from './pages/leaderboard.js';
 import { loadAdminDashboard } from './pages/adminDashboard.js';
+// import { loadChangePasswordPage } from './pages/changePassword.js'
 
-// SPA Router
 const routes = {
     '/': loadHomePage,
     '/login': loadLoginPage,
@@ -15,11 +15,12 @@ const routes = {
     '/game': loadGamePage,
     '/leaderboard': loadLeaderboardPage,
     '/admin': loadAdminDashboard,
+    // '/change-password': loadChangePasswordPage,
 };
 
 // navigate to different pages
 export function navigateTo(path, params = {}) {
-    console.log(`Navigating to: ${path}`, params); // Debugging: Track navigation
+    console.log(`Navigating to: ${path}`, params);
 
     // update browser's history
     window.history.pushState({}, '', path);
