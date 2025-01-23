@@ -41,7 +41,7 @@ export async function loadGamePage(params = {}) {
 
     document.getElementById('leave-game').addEventListener('click', () => {
         if (confirm('Are you sure you want to leave the game?')) {
-            // emitowanie zdarzenia opuszczenia gry
+            // zdarzenie opuszczenia gry
             socket.emit('leaveGame', { roomId, playerName });
     
             navigateTo('/');

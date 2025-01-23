@@ -100,7 +100,7 @@ app.patch('/api/leaderboard/:id', roleMiddleware('admin'), async (req, res) => {
         const updatedEntry = await Leaderboard.findByIdAndUpdate(
             id,
             updateFields,
-            { new: true } // Return the updated document
+            { new: true }
         );
 
         if (!updatedEntry) {
@@ -110,7 +110,7 @@ app.patch('/api/leaderboard/:id', roleMiddleware('admin'), async (req, res) => {
         res.json(updatedEntry);
     } catch (error) {
         console.error('Error updating leaderboard entry:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Error updating leaderboard entry' });
     }
 });
 
@@ -128,7 +128,7 @@ app.delete('/api/leaderboard/:id', roleMiddleware('admin'), async (req, res) => 
         res.json({ message: 'Leaderboard entry deleted successfully' });
     } catch (error) {
         console.error('Error deleting leaderboard entry:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Error deleting leaderboard entry' });
     }
 });
 
@@ -136,10 +136,10 @@ app.delete('/api/leaderboard/:id', roleMiddleware('admin'), async (req, res) => 
 app.delete('/api/leaderboard', roleMiddleware('admin'), async (req, res) => {
     try {
         const result = await Leaderboard.deleteMany({});
-        res.json({ message: 'All leaderboard entries deleted', deletedCount: result.deletedCount });
+        res.json({ message: 'All leaderboard entries deleted' });
     } catch (error) {
         console.error('Error deleting leaderboard entries:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Error deleting leaderboard entries' });
     }
 });
 
@@ -152,11 +152,6 @@ mongoose
    .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
    .then(() => console.log('Connected to MongoDB'))
    .catch((err) => console.error('MongoDB connection error:', err));
-
-// // MQTT 
-// mqttClient.on('connect', () => {
-//     console.log('MQTT connected');
-// });
 
 setupSocket(io, mqttClient); // pokoje i gracze
 

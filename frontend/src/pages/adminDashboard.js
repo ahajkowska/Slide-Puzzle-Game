@@ -16,7 +16,7 @@ export async function loadAdminDashboard() {
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- User data will be populated here -->
+                    <!-- User data populated here -->
                 </tbody>
             </table>
             <button id="create-user-btn">Create New User</button>
@@ -67,7 +67,7 @@ export async function loadAdminDashboard() {
             if (response.ok) {
                 alert('User created successfully');
                 document.getElementById('create-user-form').style.display = 'none';
-                fetchAndDisplayUsers(); // Refresh the table
+                fetchAndDisplayUsers(); // refresh the table
             } else {
                 const error = await response.json();
                 alert(`Failed to create user: ${error.error}`);
@@ -83,8 +83,8 @@ export async function loadAdminDashboard() {
 
 async function fetchAndDisplayUsers() {
     try {
-        const username = localStorage.getItem('username'); // get username from localStorage
-        const role = localStorage.getItem('role'); // get role from localStorage
+        const username = localStorage.getItem('username');
+        const role = localStorage.getItem('role');
 
         const response = await fetch('/api/users', {
             method: 'GET',

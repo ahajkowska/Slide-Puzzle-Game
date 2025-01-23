@@ -61,7 +61,7 @@ export function initializeGame(roomId, playerName, socket) {
         }
 
         function shuffleIt(arr){
-            for (let i = 0; i < 20; i++){ // kafelki, przesuń, shuffle
+            for (let i = 0; i < 50; i++){ // kafelki, przesuń, shuffle
                 randomMove(arr);
             }
         }
@@ -92,8 +92,6 @@ export function initializeGame(roomId, playerName, socket) {
                 const formattedTime = `${seconds}.${milliseconds.toString().padStart(2, '0')}`;
                 // Update the display
                 timeElement.innerText = formattedTime;
-            } else {
-                console.error("Time element not found.");
             }
 
             // draw the board

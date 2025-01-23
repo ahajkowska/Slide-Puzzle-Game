@@ -1,3 +1,5 @@
+// simulate user authentication
+
 const mockUser = (req, res, next) => {
     const role = req.headers['x-user-role'] || 'guest';
     const username = req.headers['x-user-name'] || 'anonymous';

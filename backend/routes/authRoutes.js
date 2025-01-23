@@ -2,7 +2,6 @@ const express = require('express');
 const { loginUser, registerUser } = require('../controllers/authController');
 const router = express.Router();
 
-// endpointy autoryzacji
 router.post('/login', loginUser);
 router.post('/register', registerUser);
 

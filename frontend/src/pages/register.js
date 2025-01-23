@@ -46,7 +46,7 @@ export function loadRegisterPage() {
                 alert("Registration successful! Please log in.");
                 import('./login.js').then(({ loadLoginPage }) => {
                     loadLoginPage();
-                }); // Redirect to login
+                }); // redirect to login
             } else {
                 const error = await response.json();
                 alert(error.message || "Registration failed. Try again.");

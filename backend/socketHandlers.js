@@ -108,20 +108,20 @@ const setupSocket = (io, mqttClient) => {
             }
 
             try {
-                // HTTP POST to add player's score to the leaderboard
-                const response = await axios.post('http://localhost:3001/api/leaderboard', {
+                // add player's score to the leaderboard
+                const response = await axios.post('/api/leaderboard', {
                     playerName,
                     time
                 });
-                console.log('Leaderboard updated via HTTP:', response.data);
+                console.log('Leaderboard updated - HTTP:', response.data);
             } catch (error) {
-                console.error('Error updating leaderboard via HTTP:', error.message);
+                console.error('Error updating leaderboard - HTTP:', error.message);
                 try {
                     // add player's score to the leaderboard; using the Leaderboard model directly
                     const newEntry = await Leaderboard.create({ playerName, time });
-                    console.log('Fallback: Leaderboard updated directly via DB:', newEntry);
+                    console.log('Leaderboard updated - DB:', newEntry);
                 } catch (error) {
-                    console.error('Error updating leaderboard via DB:', error);
+                    console.error('Error updating leaderboard - DB:', error);
                 }
             }
 
@@ -194,7 +194,6 @@ const setupSocket = (io, mqttClient) => {
         // ==== chat function ====
 
         socket.on('addChatMessage', (messageData) => {
-            // console.log('server -> Message received:', messageData);
             const { roomId, playerName, message } = messageData;
 
             console.log('Received addChatMessage event:', messageData);

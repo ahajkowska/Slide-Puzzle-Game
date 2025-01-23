@@ -11,7 +11,7 @@ router.get('/', roleMiddleware('admin'), async (req, res) => {
         res.json(users);
     } catch (error) {
         console.error('Error fetching users:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Error fetching users' });
     }
 });
 
@@ -45,12 +45,12 @@ router.post('/', roleMiddleware('admin'), async (req, res) => {
         res.status(201).json({ message: 'User created successfully', user: newUser });
     } catch (error) {
         console.error('Error creating user:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Error creating user' });
     }
 });
 
 router.patch('/change-password/:username', async (req, res) => {
-    const { username } = req.params; // Use username instead of id
+    const { username } = req.params;
     const { oldPassword, newPassword } = req.body;
 
     if (!oldPassword || !newPassword) {
@@ -78,7 +78,7 @@ router.patch('/change-password/:username', async (req, res) => {
         res.status(200).json({ message: 'Password updated successfully.' });
     } catch (error) {
         console.error('Error updating password:', error);
-        res.status(500).json({ error: 'Internal server error.' });
+        res.status(500).json({ error: 'Error updating password' });
     }
 });
 
@@ -100,7 +100,7 @@ router.patch('/update-login/:id', roleMiddleware('admin'), async (req, res) => {
         const updatedUser = await User.findByIdAndUpdate(
             id,
             { username: newUsername },
-            { new: true }
+            { new: true },
         );
 
         if (!updatedUser) {
@@ -110,7 +110,7 @@ router.patch('/update-login/:id', roleMiddleware('admin'), async (req, res) => {
         res.json({ message: 'Username updated successfully', user: updatedUser });
     } catch (error) {
         console.error('Error updating username:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Error updating username' });
     }
 });
 
@@ -128,7 +128,7 @@ router.patch('/role/:id', roleMiddleware('admin'), async (req, res) => {
         const updatedUser = await User.findByIdAndUpdate(
             id,
             { role },
-            { new: true }
+            { new: true },
         );
 
         if (!updatedUser) {
@@ -138,7 +138,7 @@ router.patch('/role/:id', roleMiddleware('admin'), async (req, res) => {
         res.json({ message: 'User role updated successfully', user: updatedUser });
     } catch (error) {
         console.error('Error updating user role:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Error updating user role' });
     }
 });
 
@@ -156,7 +156,7 @@ router.delete('/:id', roleMiddleware('admin'), async (req, res) => {
         res.json({ message: 'User deleted successfully', user: deletedUser });
     } catch (error) {
         console.error('Error deleting user:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Error deleting user' });
     }
 });
 

@@ -1,3 +1,5 @@
+import { navigateTo } from '../router.js';
+
 export async function loadChangePasswordPage() {
     const app = document.getElementById('app');
 

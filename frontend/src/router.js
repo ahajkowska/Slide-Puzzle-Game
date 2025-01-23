@@ -5,7 +5,7 @@ import { loadWaitingRoomPage } from './pages/waitingRoom.js';
 import { loadGamePage } from './pages/gamePage.js';
 import { loadLeaderboardPage } from './pages/leaderboard.js';
 import { loadAdminDashboard } from './pages/adminDashboard.js';
-// import { loadChangePasswordPage } from './pages/changePassword.js'
+import { loadChangePasswordPage } from './pages/changePassword.js'
 
 const routes = {
     '/': loadHomePage,
@@ -15,7 +15,7 @@ const routes = {
     '/game': loadGamePage,
     '/leaderboard': loadLeaderboardPage,
     '/admin': loadAdminDashboard,
-    // '/change-password': loadChangePasswordPage,
+    '/change-password': loadChangePasswordPage,
 };
 
 // navigate to different pages
@@ -27,14 +27,13 @@ export function navigateTo(path, params = {}) {
 
     const pageLoader = routes[path];
     if (pageLoader) {
-        document.getElementById('app').innerHTML = ''; // Clear existing content
-        // pageLoader(params); // Pass params to the page loader
-        routes[path](params);
+        document.getElementById('app').innerHTML = ''; // clear existing content
+        pageLoader(params); // Pass params to the page loader
+        // routes[path](params);
     } else {
         console.error('Page not found:', path);
     }
 }
-
 
 function renderPage() {
     const path = window.location.pathname;

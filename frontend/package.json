@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "mqtt": "^5.10.3",
     "socket.io": "^4.8.1"
   }
 }

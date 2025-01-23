@@ -13,10 +13,11 @@ export function setupWaitingRoomChat(playerName){
     const chatTopic = `waiting-room/general-chat`;
     const newRoomTopic = 'waiting-room/new-room';
     const playerJoinTopic = 'waiting-room/player-join';
+    const chatTyping = `waiting-room/typing`;
 
     mqttClient.on('connect', () => {
         if (!mqttClient.subscriptions) {
-            mqttClient.subscriptions = new Set(); // To track active subscriptions
+            mqttClient.subscriptions = new Set(); // to track active subscriptions
         }
 
         if (!mqttClient.subscriptions.has(newRoomTopic)) {
@@ -42,11 +43,11 @@ export function setupWaitingRoomChat(playerName){
             if (err) {
                 console.error(`Failed to subscribe to topic ${chatTopic}:`, err);
             } else {
-                console.log(`Subscribed to general waiting room chat: ${chatTopic}`);
+                console.log(`Subscribed to waiting room chat: ${chatTopic}`);
             }
         });
 
-        mqttClient.subscribe(`waiting-room/typing`, (err) => {
+        mqttClient.subscribe(chatTyping, (err) => {
             if (!err) {
                 console.log(`Subscribed to typing topic: waiting-room/typing`);
             }
@@ -71,12 +72,12 @@ export function setupWaitingRoomChat(playerName){
             displayChatMessage(msg.playerName, msg.message);
         }
 
-        if (topic === `waiting-room/typing`) {
+        if (topic === chatTyping) {
             const { playerName } = JSON.parse(message.toString());
             const typingIndicator = document.getElementById('typing-indicator');
             typingIndicator.innerText = `${playerName} is typing...`;
     
-            // Remove indicator after a delay
+            // remove indicator after delay
             clearTimeout(typingIndicator.timeout);
             typingIndicator.timeout = setTimeout(() => {
                 typingIndicator.innerText = '';
@@ -140,7 +141,7 @@ export function setupWaitingRoomChat(playerName){
     });
 
     chatInput.addEventListener('input', () => {
-        mqttClient.publish(`waiting-room/typing`, JSON.stringify({ playerName }));
+        mqttClient.publish(chatTyping, JSON.stringify({ playerName }));
     });
 }
 
@@ -152,13 +153,13 @@ export function setupChat(roomId, playerName) {
     const chatSend = document.getElementById('chat-send');
     const chatMessages = document.getElementById('chat-messages');
 
-    // Send a message
+    // send a message
     chatSend.addEventListener('click', () => {
         const message = chatInput.value.trim();
         if (message) {
             console.log('Sending message:', { roomId, playerName, message });
             socket.emit('addChatMessage', { roomId, playerName, message });
-            chatInput.value = ''; // Clear the input
+            chatInput.value = ''; // clear the input
         }
     });
 
