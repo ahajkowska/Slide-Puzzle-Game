@@ -1,7 +1,5 @@
 # Slide-Puzzle-Game
 
-# Your Project Name
-
 ## Description
 This project is a **real-time multiplayer game** built using **Node.js**, **Express**, **Socket.IO**, and **MQTT**. It allows players to create or join game rooms, interact via chat, and play games in real-time.
 
